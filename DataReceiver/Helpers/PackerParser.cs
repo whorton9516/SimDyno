@@ -26,6 +26,12 @@ public static class PacketParser
         return BitConverter.ToUInt32(bytes, index);
     }
 
+    internal static int GetInt32(byte[] bytes, int index)
+    {
+        ByteCheck(bytes, index, 4);
+        return BitConverter.ToInt32(bytes, index);
+    }
+
     internal static uint GetUInt8(byte[] bytes, int index)
     {
         ByteCheck(bytes, index, 1);

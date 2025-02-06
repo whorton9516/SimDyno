@@ -4,7 +4,7 @@ namespace DataReceiver.Helpers;
 public static class ForzaFormatter
 {
     // Sled
-    public static bool IsRaceOn(this byte[] bytes) => GetSingle(bytes, 0) > 0;
+    public static bool IsRaceOn(this byte[] bytes) => GetInt32(bytes, 0) > 0;
     public static uint TimestampMs(this byte[] bytes) => GetUInt32(bytes, 4);
     public static float EngineMaxRpm(this byte[] bytes) => GetSingle(bytes, 8);
     public static float EngineIdleRpm(this byte[] bytes) => GetSingle(bytes, 12);

@@ -29,7 +29,6 @@ public class SimDynoHub : Hub
         await Clients.All.SendAsync("BroadcastMessage", message);
     }
 
-
     // Called when a client disconnects from the hub
     public override async Task OnDisconnectedAsync(Exception? exception)
     {

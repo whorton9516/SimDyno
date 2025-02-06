@@ -10,13 +10,12 @@ namespace DataReceiver;
 public class Receiver
 {
     public Socket? Listener { get; set; }
-    private readonly IHubContext<SimDynoHub> _hubContext;
+    readonly IHubContext<SimDynoHub> _hubContext;
 
-    const string ServerURL = "http://localhost:7247/simDynoHub";
     const string IpAddress = "127.0.0.1";
     const int Port = 5555;
 
-    private bool _gameConnected = false;
+    bool _gameConnected = false;
 
     public Receiver(IHubContext<SimDynoHub> hubContext)
     {
@@ -66,7 +65,6 @@ public class Receiver
         }
     }
     
-
     public ForzaData ParseForza(byte[] packet)
     {
         var data = new ForzaData();
@@ -172,7 +170,7 @@ public class Receiver
         return data;
     }
 
-    private async Task BroadcastMessageToClients(string message)
+    async Task BroadcastMessageToClients(string message)
     {
         try
         {

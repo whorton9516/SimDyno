@@ -5,14 +5,14 @@ let mainWindow;
 app.on('ready', () => {
     mainWindow = new BrowserWindow({
         width: 800,
-        height: 600,
+        height: 1200,
         webPreferences: {
             nodeIntegration: true, // Enable Node.js in renderer.js
             contextIsolation: false,
         },
     });
 
-    mainWindow.loadFile('index.html');
+    mainWindow.loadFile('src/index.html');
 
     mainWindow.on('closed', () => {
         mainWindow = null;

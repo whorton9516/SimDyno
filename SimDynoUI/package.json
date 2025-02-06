@@ -2,17 +2,38 @@
   "name": "simdynoui",
   "version": "1.0.0",
   "description": "Frontend of the SimDyno app",
-  "main": "src/main.js",
+  "main": "dist/main/main.js",
+  "type": "module",
   "scripts": {
-    "start": "electron .",
+    "build": "tsc && webpack --config webpack.renderer.js",
+    "start": "npm run build && electron .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "SamW",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^34.0.2"
+    "@babel/core": "^7.26.7",
+    "@babel/preset-env": "^7.26.7",
+    "@babel/preset-react": "^7.26.3",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "babel-loader": "^9.2.1",
+    "css-loader": "^7.1.2",
+    "electron": "^34.0.2",
+    "html-webpack-plugin": "^5.6.3",
+    "sass": "^1.84.0",
+    "sass-loader": "^16.0.4",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "webpack": "^5.97.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
-    "@microsoft/signalr": "^8.0.7"
+    "@microsoft/signalr": "^8.0.7",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   }
 }

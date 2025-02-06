@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./app/src",
+    "target": "ES6",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "strict": true,
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["app/src/*"]
+    }
+  },
+  "include": ["app/**/*.ts", "app/**/*.tsx", "app/**/*.d.tsx"],
+  "exclude": [
+      "node_modules",
+      "app/node_modules",
+      "dist",
+      "out",
+      "app/src/highlighter"
+    ],
+    "compileOnSave": false
+}

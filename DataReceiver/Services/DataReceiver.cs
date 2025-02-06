@@ -1,7 +1,7 @@
-﻿using Common.Models;
-using DataReceiver.Helpers;
+﻿using DataReceiver.Helpers;
 using Microsoft.AspNetCore.SignalR;
 using SimDynoServer.Hubs;
+using SimDynoServer.Models;
 using System.Net;
 using System.Net.Sockets;
 

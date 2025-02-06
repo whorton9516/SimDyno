@@ -1,6 +1,5 @@
-﻿using Common.Models;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SimDynoServer.Models;
 
 namespace SimDynoServer.Controllers;
 

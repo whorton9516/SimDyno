@@ -1,10 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using MessagePack;  
 
-namespace Common.Models;
+namespace SimDynoServer.Models;
 
-[MessagePackObject]
 public struct ForzaData
 {
 
@@ -104,7 +102,6 @@ public struct ForzaData
     /// <summary>
     /// 1 when race is on, 0 when in menus or the race is stopped
     /// </summary>
-    [Key(0)]
     public bool IsRaceOn
     {
         get => _isRaceOn;
@@ -121,7 +118,6 @@ public struct ForzaData
     /// <summary>
     /// Current session timer. Will eventually overflow to 0.
     /// </summary>
-    [Key(1)]
     public uint TimestampMS
     {
         get => _timeStampMS;
@@ -135,7 +131,6 @@ public struct ForzaData
         }
     }
 
-    [Key(2)]
     public float EngineMaxRpm
     {
         get => _engineMaxRpm;
@@ -149,7 +144,6 @@ public struct ForzaData
         }
     }
 
-    [Key(3)]
     public float EngineIdleRpm
     {
         get => _engineIdleRpm;
@@ -163,7 +157,6 @@ public struct ForzaData
         }
     }
 
-    [Key(4)]
     public float CurrentEngineRpm
     {
         get => _currentEngineRpm;
@@ -178,7 +171,6 @@ public struct ForzaData
     }
 
     // In the car's local space; X = right, Y = up, Z = forward
-    [Key(5)]
     public float AccelerationX
     {
         get => _accelerationX;
@@ -192,7 +184,6 @@ public struct ForzaData
         }
     }
 
-    [Key(6)]
     public float AccelerationY
     {
         get => _accelerationY;
@@ -206,7 +197,6 @@ public struct ForzaData
         }
     }
 
-    [Key(7)]
     public float AccelerationZ
     {
         get => _accelerationZ;
@@ -221,7 +211,6 @@ public struct ForzaData
     }
 
     // In the car's local space; X = right, Y = up, Z = forward
-    [Key(8)]
     public float VelocityX
     {
         get => _velocityX;
@@ -235,7 +224,6 @@ public struct ForzaData
         }
     }
 
-    [Key(9)]
     public float VelocityY
     {
         get => _velocityY;
@@ -249,7 +237,6 @@ public struct ForzaData
         }
     }
 
-    [Key(10)]
     public float VelocityZ
     {
         get => _velocityZ;
@@ -264,7 +251,6 @@ public struct ForzaData
     }
 
     // In the car's local space; X = pitch, Y = yaw, Z = roll
-    [Key(11)]
     public float AngularVelocityX
     {
         get => _angularVelocityX;
@@ -278,7 +264,6 @@ public struct ForzaData
         }
     }
 
-    [Key(12)]
     public float AngularVelocityY
     {
         get => _angularVelocityY;
@@ -292,7 +277,6 @@ public struct ForzaData
         }
     }
 
-    [Key(13)]
     public float AngularVelocityZ
     {
         get => _angularVelocityZ;
@@ -306,7 +290,6 @@ public struct ForzaData
         }
     }
 
-    [Key(14)]
     public float Yaw
     {
         get => _yaw;
@@ -320,7 +303,6 @@ public struct ForzaData
         }
     }
 
-    [Key(15)]
     public float Pitch
     {
         get => _pitch;
@@ -334,7 +316,6 @@ public struct ForzaData
         }
     }
 
-    [Key(16)]
     public float Roll
     {
         get => _roll;
@@ -349,7 +330,6 @@ public struct ForzaData
     }
 
     // Suspension travel normalized: 0.0f = max stretch; 1.0 = max compression
-    [Key(17)]
     public float NormalizedSuspensionTravelFL
     {
         get => _normalizedSuspensionTravelFL;
@@ -363,7 +343,6 @@ public struct ForzaData
         }
     }
 
-    [Key(18)]
     public float NormalizedSuspensionTravelFR
     {
         get => _normalizedSuspensionTravelFR;
@@ -377,7 +356,6 @@ public struct ForzaData
         }
     }
 
-    [Key(19)]
     public float NormalizedSuspensionTravelRL
     {
         get => _normalizedSuspensionTravelRL;
@@ -391,7 +369,6 @@ public struct ForzaData
         }
     }
 
-    [Key(20)]
     public float NormalizedSuspensionTravelRR
     {
         get => _normalizedSuspensionTravelRR;
@@ -406,7 +383,6 @@ public struct ForzaData
     }
 
     // Tire normalized slip ratio, = 0 means 100% grip and |ratio| > 1.0 means loss of grip.
-    [Key(21)]
     public float TireSlipRatioFL
     {
         get => _tireSlipRatioFL;
@@ -420,7 +396,6 @@ public struct ForzaData
         }
     }
 
-    [Key(22)]
     public float TireSlipRatioFR
     {
         get => _tireSlipRatioFR;
@@ -434,7 +409,6 @@ public struct ForzaData
         }
     }
 
-    [Key(23)]
     public float TireSlipRatioRL
     {
         get => _tireSlipRatioRL;
@@ -448,7 +422,6 @@ public struct ForzaData
         }
     }
 
-    [Key(24)]
     public float TireSlipRatioRR
     {
         get => _tireSlipRatioRR;
@@ -463,7 +436,6 @@ public struct ForzaData
     }
 
     // Wheels rotation speed radians/sec.
-    [Key(25)]
     public float WheelRotationSpeedFL
     {
         get => _wheelRotationSpeedFL;
@@ -477,7 +449,6 @@ public struct ForzaData
         }
     }
 
-    [Key(26)]
     public float WheelRotationSpeedFR
     {
         get => _wheelRotationSpeedFR;
@@ -491,7 +462,6 @@ public struct ForzaData
         }
     }
 
-    [Key(27)]
     public float WheelRotationSpeedRL
     {
         get => _wheelRotationSpeedRL;
@@ -505,7 +475,6 @@ public struct ForzaData
         }
     }
 
-    [Key(28)]
     public float WheelRotationSpeedRR
     {
         get => _wheelRotationSpeedRR;
@@ -520,7 +489,6 @@ public struct ForzaData
     }
 
     // = 1 when wheel is on rumble strip, = 0 when off.
-    [Key(29)]
     public float WheelOnRumbleStripFL
     {
         get => _wheelOnRumbleStripFL;
@@ -534,7 +502,6 @@ public struct ForzaData
         }
     }
 
-    [Key(30)]
     public float WheelOnRumbleStripFR
     {
         get => _wheelOnRumbleStripFR;
@@ -548,7 +515,6 @@ public struct ForzaData
         }
     }
 
-    [Key(31)]
     public float WheelOnRumbleStripRL
     {
         get => _wheelOnRumbleStripRL;
@@ -562,7 +528,6 @@ public struct ForzaData
         }
     }
 
-    [Key(32)]
     public float WheelOnRumbleStripRR
     {
         get => _wheelOnRumbleStripRR;
@@ -577,7 +542,6 @@ public struct ForzaData
     }
 
     // = from 0 to 1, where 1 is the deepest puddle
-    [Key(33)]
     public float WheelInPuddleDepthFL
     {
         get => _wheelInPuddleDepthFL;
@@ -591,7 +555,6 @@ public struct ForzaData
         }
     }
 
-    [Key(34)]
     public float WheelInPuddleDepthFR
     {
         get => _wheelInPuddleDepthFR;
@@ -605,7 +568,6 @@ public struct ForzaData
         }
     }
 
-    [Key(35)]
     public float WheelInPuddleDepthRL
     {
         get => _wheelInPuddleDepthRL;
@@ -619,7 +581,6 @@ public struct ForzaData
         }
     }
 
-    [Key(36)]
     public float WheelInPuddleDepthRR
     {
         get => _wheelInPuddleDepthRR;
@@ -634,7 +595,6 @@ public struct ForzaData
     }
 
     // Non-dimensional surface rumble values passed to controller force feedback
-    [Key(37)]
     public float SurfaceRumbleFL
     {
         get => _surfaceRumbleFL;
@@ -648,7 +608,6 @@ public struct ForzaData
         }
     }
 
-    [Key(38)]
     public float SurfaceRumbleFR
     {
         get => _surfaceRumbleFR;
@@ -662,7 +621,6 @@ public struct ForzaData
         }
     }
 
-    [Key(39)]
     public float SurfaceRumbleRL
     {
         get => _surfaceRumbleRL;
@@ -676,7 +634,6 @@ public struct ForzaData
         }
     }
 
-    [Key(40)]
     public float SurfaceRumbleRR
     {
         get => _surfaceRumbleRR;
@@ -691,7 +648,6 @@ public struct ForzaData
     }
 
     // Tire normalized slip angle, = 0 means 100% grip and |angle| > 1.0 means loss of grip.
-    [Key(41)]
     public float TireSlipAngleFL
     {
         get => _tireSlipAngleFL;
@@ -705,7 +661,6 @@ public struct ForzaData
         }
     }
 
-    [Key(42)]
     public float TireSlipAngleFR
     {
         get => _tireSlipAngleFR;
@@ -719,7 +674,6 @@ public struct ForzaData
         }
     }
 
-    [Key(43)]
     public float TireSlipAngleRL
     {
         get => _tireSlipAngleRL;
@@ -733,7 +687,6 @@ public struct ForzaData
         }
     }
 
-    [Key(44)]
     public float TireSlipAngleRR
     {
         get => _tireSlipAngleRR;
@@ -748,7 +701,6 @@ public struct ForzaData
     }
 
     // Tire normalized combined slip, = 0 means 100% grip and |slip| > 1.0 means loss of grip.
-    [Key(45)]
     public float TireCombinedSlipFL
     {
         get => _tireCombinedSlipFL;
@@ -762,7 +714,6 @@ public struct ForzaData
         }
     }
 
-    [Key(46)]
     public float TireCombinedSlipFR
     {
         get => _tireCombinedSlipFR;
@@ -776,7 +727,6 @@ public struct ForzaData
         }
     }
 
-    [Key(47)]
     public float TireCombinedSlipRL
     {
         get => _tireCombinedSlipRL;
@@ -790,7 +740,6 @@ public struct ForzaData
         }
     }
 
-    [Key(48)]
     public float TireCombinedSlipRR
     {
         get => _tireCombinedSlipRR;
@@ -805,7 +754,6 @@ public struct ForzaData
     }
 
     // Actual suspension travel in meters
-    [Key(49)]
     public float SuspensionTravelMetersFL
     {
         get => _suspensionTravelMetersFL;
@@ -819,7 +767,6 @@ public struct ForzaData
         }
     }
 
-    [Key(50)]
     public float SuspensionTravelMetersFR
     {
         get => _suspensionTravelMetersFR;
@@ -833,7 +780,6 @@ public struct ForzaData
         }
     }
 
-    [Key(51)]
     public float SuspensionTravelMetersRL
     {
         get => _suspensionTravelMetersRL;
@@ -847,7 +793,6 @@ public struct ForzaData
         }
     }
 
-    [Key(52)]
     public float SuspensionTravelMetersRR
     {
         get => _suspensionTravelMetersRR;
@@ -862,7 +807,6 @@ public struct ForzaData
     }
 
     // Unique ID of the car make/model
-    [Key(53)]
     public uint CarOrdinal
     {
         get => _carOrdinal;
@@ -877,7 +821,6 @@ public struct ForzaData
     }
 
     // Between 0 (D -- worst cars) and 7 (X class -- best cars) inclusive
-    [Key(54)]
     public uint CarClass
     {
         get => _carClass;
@@ -892,7 +835,6 @@ public struct ForzaData
     }
 
     // Between 100 (worst car) and 999 (best car) inclusive
-    [Key(55)]
     public uint CarPerformanceIndex
     {
         get => _carPerformanceIndex;
@@ -907,7 +849,6 @@ public struct ForzaData
     }
 
     // 0 = FWD, 1 = RWD, 2 = AWD
-    [Key(56)]
     public uint DrivetrainType
     {
         get => _drivetrainType;
@@ -922,7 +863,6 @@ public struct ForzaData
     }
 
     // Number of cylinders in the engine
-    [Key(57)]
     public uint NumCylinders
     {
         get => _numCylinders;
@@ -936,7 +876,6 @@ public struct ForzaData
         }
     }
 
-    [Key(58)]
     public float PositionX
     {
         get => _positionX;
@@ -950,7 +889,6 @@ public struct ForzaData
         }
     }
 
-    [Key(59)]
     public float PositionY
     {
         get => _positionY;
@@ -964,7 +902,6 @@ public struct ForzaData
         }
     }
 
-    [Key(60)]
     public float PositionZ
     {
         get => _positionZ;
@@ -978,7 +915,6 @@ public struct ForzaData
         }
     }
 
-    [Key(61)]
     public float Speed
     {
         get => _speed;
@@ -992,7 +928,6 @@ public struct ForzaData
         }
     }
 
-    [Key(62)]
     public float SpeedMPH
     {
         get => _speedMPH;
@@ -1006,7 +941,6 @@ public struct ForzaData
         }
     }
 
-    [Key(63)]
     public float SpeedKPH
     {
         get => _speedKPH;
@@ -1020,7 +954,6 @@ public struct ForzaData
         }
     }
 
-    [Key(64)]
     public float Power
     {
         get => _power;
@@ -1034,7 +967,6 @@ public struct ForzaData
         }
     }
 
-    [Key(65)]
     public float Torque
     {
         get => _torque;
@@ -1048,7 +980,6 @@ public struct ForzaData
         }
     }
 
-    [Key(66)]
     public float TireTempFL
     {
         get => _tireTempFL;
@@ -1062,7 +993,6 @@ public struct ForzaData
         }
     }
 
-    [Key(67)]
     public float TireTempFR
     {
         get => _tireTempFR;
@@ -1076,7 +1006,6 @@ public struct ForzaData
         }
     }
 
-    [Key(68)]
     public float TireTempRL
     {
         get => _tireTempRL;
@@ -1090,7 +1019,6 @@ public struct ForzaData
         }
     }
 
-    [Key(69)]
     public float TireTempRR
     {
         get => _tireTempRR;
@@ -1104,7 +1032,6 @@ public struct ForzaData
         }
     }
 
-    [Key(70)]
     public float Boost
     {
         get => _boost;
@@ -1118,7 +1045,6 @@ public struct ForzaData
         }
     }
 
-    [Key(71)]
     public float Fuel
     {
         get => _fuel;
@@ -1132,7 +1058,6 @@ public struct ForzaData
         }
     }
 
-    [Key(72)]
     public float Distance
     {
         get => _distance;
@@ -1146,7 +1071,6 @@ public struct ForzaData
         }
     }
 
-    [Key(73)]
     public float BestLapTime
     {
         get => _bestLapTime;
@@ -1160,7 +1084,6 @@ public struct ForzaData
         }
     }
 
-    [Key(74)]
     public float LastLapTime
     {
         get => _lastLapTime;
@@ -1174,7 +1097,6 @@ public struct ForzaData
         }
     }
 
-    [Key(75)]
     public float CurrentLapTime
     {
         get => _currentLapTime;
@@ -1188,7 +1110,6 @@ public struct ForzaData
         }
     }
 
-    [Key(76)]
     public float CurrentRaceTime
     {
         get => _currentRaceTime;
@@ -1202,7 +1123,6 @@ public struct ForzaData
         }
     }
 
-    [Key(77)]
     public uint LapNumber
     {
         get => _lapNumber;
@@ -1216,7 +1136,6 @@ public struct ForzaData
         }
     }
 
-    [Key(78)]
     public uint RacePosition
     {
         get => _racePosition;
@@ -1230,7 +1149,6 @@ public struct ForzaData
         }
     }
 
-    [Key(79)]
     public uint Accelerator
     {
         get => _accelerator;
@@ -1244,7 +1162,6 @@ public struct ForzaData
         }
     }
 
-    [Key(80)]
     public uint Brake
     {
         get => _brake;
@@ -1258,7 +1175,6 @@ public struct ForzaData
         }
     }
 
-    [Key(81)]
     public uint Clutch
     {
         get => _clutch;
@@ -1272,7 +1188,6 @@ public struct ForzaData
         }
     }
 
-    [Key(82)]
     public uint Handbrake
     {
         get => _handbrake;
@@ -1286,7 +1201,6 @@ public struct ForzaData
         }
     }
 
-    [Key(83)]
     public uint Gear
     {
         get => _gear;
@@ -1300,7 +1214,6 @@ public struct ForzaData
         }
     }
 
-    [Key(84)]
     public int Steer
     {
         get => _steer;
@@ -1314,7 +1227,6 @@ public struct ForzaData
         }
     }
 
-    [Key(85)]
     public uint NormalizedDrivingLine
     {
         get => _normalizedDrivingLine;
@@ -1328,7 +1240,6 @@ public struct ForzaData
         }
     }
 
-    [Key(86)]
     public uint NormalizedAiBrakeDifference
     {
         get => _normalizedAIBrakeDifference;
@@ -1342,7 +1253,6 @@ public struct ForzaData
         }
     }
 
-    [Key(87)]
     public float TireWearFL
     {
         get => _tireWearFL;
@@ -1356,7 +1266,6 @@ public struct ForzaData
         }
     }
 
-    [Key(88)]
     public float TireWearFR
     {
         get => _tireWearFR;
@@ -1370,7 +1279,6 @@ public struct ForzaData
         }
     }
 
-    [Key(89)]
     public float TireWearRL
     {
         get => _tireWearRL;
@@ -1384,7 +1292,6 @@ public struct ForzaData
         }
     }
 
-    [Key(90)]
     public float TireWearRR
     {
         get => _tireWearRR;
@@ -1399,7 +1306,6 @@ public struct ForzaData
     }
 
     // ID for track
-    [Key(91)]
     public int TrackOrdinal
     {
         get => _trackOrdinal;

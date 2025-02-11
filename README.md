@@ -21,9 +21,6 @@ SimDyno is composed of two main components:
 - **Backend**: An ASP.NET web app built in C# that receives, parses, and processes telemetry data. It uses SignalR to stream data in real time.
 - **Frontend**: An Electron-based desktop application with a React UI written in TypeScript. Popular UI libraries such as Mantine UI and Material UI are used to ensure a clean, modern, and aesthetic design.
 
-## Documentation
-Code will be documented in the [Docs](./docs) folder.
-
 ## Contributing
 Contributions are welcome! Please review [CONTRIBUTING.md](./contributing.md) for guidelines on how to contribute. We follow a clear branching strategy and require code reviews for pull requests to maintain code quality.
 

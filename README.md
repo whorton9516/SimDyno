@@ -4,7 +4,7 @@ SimDyno is a desktop application designed to take telemetry data from racing gam
 
 ## Overview
 
-SimDyno provides a dashboard with live telemetry data such as speed, RPMs, power, boost, torque, tire temperatures, tire slip, and suspension travel. It also includes lap-by-lap performance history, race history, social challenges, and milestone tracking. Future updates aims to integrate a machine learning model that learns your driving habits and offers personalized coaching tips.
+SimDyno provides a dashboard with live telemetry data such as speed, RPM, power, boost, torque, tire temperatures, tire slip, and suspension travel. It also includes lap-by-lap performance history, race history, social challenges, and milestone tracking. Future updates aims to integrate a machine learning model that learns your driving habits and offers personalized coaching tips.
 
 ## Features
 

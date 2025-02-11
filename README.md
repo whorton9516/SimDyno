@@ -28,4 +28,4 @@ Code will be documented in the [Docs](./docs) folder.
 Contributions are welcome! Please review [CONTRIBUTING.md](./contributing.md) for guidelines on how to contribute. We follow a clear branching strategy and require code reviews for pull requests to maintain code quality.
 
 ## License
-This project is licensed under the [MIT License](./LICENSE.md).
+This project is licensed under the [MIT License](./LICENSE).

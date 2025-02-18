@@ -9,7 +9,7 @@ public static class ForzaFormatter
     public static float EngineMaxRpm(this byte[] bytes) => GetSingle(bytes, 8);
     public static float EngineIdleRpm(this byte[] bytes) => GetSingle(bytes, 12);
     public static float CurrentEngineRpm(this byte[] bytes) => GetSingle(bytes, 16);
-    public static float AccelerationX(this byte[] bytes) => GetSingle(bytes, 20);
+    public static float AccelerationX(this byte[] bytes) => GetSingle(bytes, 20);   
     public static float AccelerationY(this byte[] bytes) => GetSingle(bytes, 24);
     public static float AccelerationZ(this byte[] bytes) => GetSingle(bytes, 28);
     public static float VelocityX(this byte[] bytes) => GetSingle(bytes, 32);

@@ -5,10 +5,13 @@
   "main": "dist/main/main.js",
   "type": "module",
   "scripts": {
-    "build": "tsc && webpack --config webpack.renderer.js",
-    "start": "npm run build && electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "build:preload": "tsc -p tsconfig.preload.json",
+  "build:main": "tsc", 
+  "build:renderer": "webpack --config webpack.renderer.js",
+  "build": "npm run build:preload && npm run build:main && npm run build:renderer",
+  "start": "npm run build && electron .",
+  "test": "echo \"Error: no test specified\" && exit 1"
+},
   "author": "SamW",
   "license": "MIT",
   "devDependencies": {
@@ -21,6 +24,9 @@
     "css-loader": "^7.1.2",
     "electron": "^34.0.2",
     "html-webpack-plugin": "^5.6.3",
+    "postcss": "^8.5.2",
+    "postcss-preset-mantine": "^1.17.0",
+    "postcss-simple-vars": "^7.0.1",
     "sass": "^1.84.0",
     "sass-loader": "^16.0.4",
     "style-loader": "^4.0.0",
@@ -32,8 +38,15 @@
     "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
+    "@mantine/charts": "^7.16.3",
+    "@mantine/core": "^7.16.3",
+    "@mantine/hooks": "^7.16.3",
+    "@mantine/nprogress": "^7.16.3",
     "@microsoft/signalr": "^8.0.7",
+    "@tabler/icons-react": "^3.30.0",
+    "lucide-react": "^0.475.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "recharts": "^2.15.1"
   }
 }

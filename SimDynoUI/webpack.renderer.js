@@ -24,14 +24,15 @@ export default {
         exclude: /node_modules/
       },
       {
-        test:/\.(scss|css)$/,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader'
-        ],
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader'],
         exclude: /node_modules/
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       }
+      
     ]
   },
   output: {

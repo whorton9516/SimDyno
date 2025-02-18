@@ -1,8 +1,6 @@
 using SimDynoServer.Hubs;
 using SimDynoServer.Services;
 
-using System.Diagnostics;
-
 namespace DataReceiver;
 
 public class Program

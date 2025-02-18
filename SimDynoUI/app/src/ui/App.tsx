@@ -2,16 +2,18 @@ import React from 'react';
 import { TelemetryDisplay } from './utility/TelemetryDisplay';
 import { SignalRStatusBar } from './utility/SignalRStatusBar';
 import { SignalRMessageLog } from './utility/SignalRMessageLog';
+import { Container, Title } from '@mantine/core';
 import '../../styles/ui/utility/_utility-body.scss';
 
 const App: React.FC = () => {
   return (
-    <div className = 'utility-body'>
-      <h1 className = 'h1'>SimDynoUI</h1>
+    <Container style={{padding: '1rem' }}>
+      <div className = 'utility-body'>
         <SignalRStatusBar />
         <TelemetryDisplay />
         <SignalRMessageLog />
-    </div>
+      </div>
+    </Container>
   );
 };
 

@@ -1,5 +1,4 @@
-import React from 'react';
-import { useSignalR } from '../../hooks/useSignalR';
+import { useSignalR } from "../../services/SignalRContext";
 import '../../../styles/ui/utility/_telemetry-display.scss';
 
 export function TelemetryDisplay() {

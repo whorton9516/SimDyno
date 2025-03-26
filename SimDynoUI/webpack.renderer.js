@@ -16,6 +16,7 @@ export default {
       '@': path.resolve(__dirname, 'app/src')
     }
   },
+  stats: 'minimal',
   module: {
     rules: [
       {

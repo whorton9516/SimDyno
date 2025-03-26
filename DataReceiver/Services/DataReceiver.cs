@@ -1,4 +1,6 @@
-﻿using DataReceiver.Helpers;
+﻿// Portions of this file include code originally written by Austin Baccus (MIT License)
+
+using DataReceiver.Helpers;
 using Microsoft.AspNetCore.SignalR;
 using SimDynoServer.Hubs;
 using SimDynoServer.Models;

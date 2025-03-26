@@ -10,7 +10,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1600,
     height: 900,
-    frame: false,
+    frame: true,
     webPreferences: {
       preload: app.isPackaged ? path.join(__dirname, "preload.js")
                               : path.join(__dirname, "../../dist/main/preload.js")
@@ -20,12 +20,10 @@ function createWindow() {
   win.loadFile(path.join(__dirname, '../../dist/index.html'));
 
   ipcMain.on("window-minimize", () => {
-    console.log("✅ Received minimize event");
     win?.minimize();
   });
   
   ipcMain.on("window-maximize", () => {
-    console.log("✅ Received maximize event");
     if (win?.isMaximized()) {
       win.unmaximize();
     } else {
@@ -34,7 +32,6 @@ function createWindow() {
   });
   
   ipcMain.on("window-close", () => {
-    console.log("✅ Received close event");
     win?.close();
   });
   

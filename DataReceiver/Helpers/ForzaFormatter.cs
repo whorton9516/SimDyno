@@ -1,4 +1,6 @@
-﻿using static DataReceiver.Helpers.PacketParser;
+﻿// Portions of this file include code originally written by Austin Baccus (MIT License)
+
+using static DataReceiver.Helpers.PacketParser;
 
 namespace DataReceiver.Helpers;
 public static class ForzaFormatter

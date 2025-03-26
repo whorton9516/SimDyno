@@ -13,7 +13,7 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["app/src/*"]
-    }
+    },
   },
   "include": ["app/**/*.ts", "app/**/*.tsx", "app/**/*.d.tsx", "scripts/global.d.ts"],
   "exclude": [

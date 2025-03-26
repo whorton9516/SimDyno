@@ -1,15 +1,23 @@
 import { useSignalR } from "../../services/SignalRContext";
-import '../../../styles/ui/utility/_telemetry-display.scss';
+
+const TelemetryDisplayStyle: React.CSSProperties = {
+    margin: '20px',
+    padding: '20px',
+    border: '1px solid #ccc',
+    flexGrow: '1',
+    overflowY: 'auto',
+    borderRadius: '5px',
+};
 
 export function TelemetryDisplay() {
     const { telemetry } = useSignalR();
 
     if (!telemetry) {
-        return <div className="telemetry-display">No telemetry data available yet.</div>;
+        return <div style={TelemetryDisplayStyle}>No telemetry data available yet.</div>;
     }
 
     return (
-        <div className="telemetry-display">
+        <div style={TelemetryDisplayStyle}>
             <div>isRaceOn: {telemetry.isRaceOn.toString()}</div>
             <div>timeStampMS: {telemetry.timeStampMS}</div>
             <div>engineMaxRpm: {telemetry.engineMaxRpm}</div>

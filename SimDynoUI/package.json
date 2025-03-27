@@ -38,7 +38,15 @@
     "webpack-dev-server": "^5.2.0"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@fontsource/michroma": "^5.2.5",
+    "@fontsource/roboto": "^5.2.5",
     "@microsoft/signalr": "^8.0.7",
+    "@mui/icons-material": "^7.0.0",
+    "@mui/material": "^7.0.0",
+    "@mui/x-charts": "^7.28.0",
+    "@mui/x-charts-vendor": "^7.20.0",
     "@tabler/icons-react": "^3.31.0",
     "lucide-react": "^0.484.0",
     "react": "^19.0.0",

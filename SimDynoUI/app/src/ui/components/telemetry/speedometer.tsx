@@ -12,11 +12,8 @@ const speedometerStyle: React.CSSProperties = {
 
 export function Speedometer() {
     const { telemetry } = useSignalR();
-    if (!telemetry) {
-        return <div style={speedometerStyle}>0 MPH</div>
-    }
     
     return (
-        <div className="speedometer">{telemetry.speedMPH} MPH</div>
+        <div style={speedometerStyle}>{telemetry.speedMPH} MPH</div>
     );
 }

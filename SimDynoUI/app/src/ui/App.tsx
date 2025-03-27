@@ -5,9 +5,10 @@ import { TelemetryDisplay } from './utility/TelemetryDisplay';
 import { SignalRMessageLog } from './utility/SignalRMessageLog';
 import Tachometer from './components/telemetry/Tachometer';
 
-// TODO: I need to rollback the UI changes for now. Remove the styles folder and place the styles directly in the components. 
-// Then remove the AppShell formatting and just place the components directly into the apps.
+// TODO: I need to rollback the UI changes for now. Remove the styles folder and place the styles directly in the components. Until I can set it back up.
+// Just place the components directly into <App>.
 // Use Austin Baccus's project as reference for now. Formatting and styling can happen later!
+// Need to go back through and add comments for documentation.
 
 const AppStyle: React.CSSProperties = {
   height: '100%',

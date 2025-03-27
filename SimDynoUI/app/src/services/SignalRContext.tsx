@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import { defaultTelemetry, Telemetry } from "@/models/Telemetry";
 
 interface SignalRContextType {
     telemetry: any;
@@ -8,7 +9,7 @@ interface SignalRContextType {
 }
 
 const SignalRContext = createContext<SignalRContextType>({
-    telemetry: null,
+    telemetry: defaultTelemetry,
     status: "Waiting on server...",
     message: "",
 });
@@ -37,12 +38,11 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
             } catch (err) {
                 if (hasConnected){
                     setStatus("Connection failed. Retrying in 5s...");
-                    setTimeout(startConnection, 5000); // Retry logic
+                    setTimeout(startConnection, 5000);
                 }
             }
         };
 
-        // Set up event listeners
         newConnection.on("ReceiveData", (data) => {
             setTelemetry(data);
         });

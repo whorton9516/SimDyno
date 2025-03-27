@@ -1,3 +1,5 @@
+*I added this to source control shortly after starting a massive UI overhaul. Due to the number of changes, I had to scrap the UI and start over. It will look better soon!!*
+
 # SimDyno
 SimDyno is a desktop application designed to take telemetry data from racing games and display live metrics. The goal is to help users analyze vehicle data in real time to improve their racing performance.
 

@@ -16,14 +16,17 @@ const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#FA6868',
+      main: '#353B3C',
     },
     secondary: {
-      main: '#0BEA99',
+      main: '#3E5265',
     },
     background: {
-      default: '#121212',
-      paper: '#1E1E1E',
+      default: '#353B3C',
+      paper: '#353B3C',
+    },
+    text: {
+      primary: '#FEF8EC',
     },
   },
 });
@@ -43,7 +46,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           position="fixed"
           sx={{
             zIndex: (theme) => theme.zIndex.drawer + 1,
-            backgroundColor: 'primary.main',
+            backgroundColor: 'secondary.main',
             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
             height: `${headerHeight}px`,
           }}
@@ -53,7 +56,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               variant="h6"
               noWrap
               component="div"
-              sx={{ flexGrow: 1, fontWeight: 500, color: 'white' }}
+              sx={{ flexGrow: 1, fontWeight: 500, color: 'text.primary' }}
             >
               App Logo
             </Typography>

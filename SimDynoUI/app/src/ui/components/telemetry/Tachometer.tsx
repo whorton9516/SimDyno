@@ -33,16 +33,16 @@ function GaugePointer() {
 }
 
 export default function Tachometer() {
-    const { telemetry } = useSignalR();
+  const { telemetry } = useSignalR();
 
-    if (!telemetry) {
-       // return <div />
-    }
+  if (!telemetry) {
+    // return <div />
+  }
 
-    let cur = telemetry?.currentEngineRpm ?? 0;
-    let max = telemetry?.maxEngineRpm ?? 7000;
+  const cur = telemetry?.currentEngineRpm ?? 0;
+  const max = telemetry?.engineMaxRpm ?? 7000;
 
-    const value = max > 0 ? (cur / max) * 100 : 0;
+  const value = max > 0 ? (cur / max) * 100 : 0;
   return (
     <GaugeContainer
       width={200}

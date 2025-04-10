@@ -1,68 +1,90 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
-import { defaultTelemetry, Telemetry } from "@/models/Telemetry";
+// SignalRContext.tsx
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { SignalRService } from './SignalRService';
+import { Telemetry, defaultTelemetry } from '@/models/Telemetry';
 
 interface SignalRContextType {
-    telemetry: any;
-    status: string;
-    message: string;
+  telemetry: Telemetry;
+  status: string;
+  message: string;
 }
 
 const SignalRContext = createContext<SignalRContextType>({
-    telemetry: defaultTelemetry,
-    status: "Waiting on server...",
-    message: "",
+  telemetry: defaultTelemetry,
+  status: 'Waiting on server...',
+  message: '',
 });
 
 export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const connectionRef = useRef<HubConnection | null>(null);
-    const [telemetry, setTelemetry] = useState<any>(null);
-    const [status, setStatus] = useState("Waiting on server...");
-    const [message, setMessage] = useState("");
-    const [hasConnected, setHasConnected] = useState(false);
+  const serviceRef = useRef<SignalRService | null>(null);
+  const [telemetry, setTelemetry] = useState<Telemetry>(defaultTelemetry);
+  const [status, setStatus] = useState('Waiting on server...');
+  const [message, setMessage] = useState('');
 
-    useEffect(() => {
-        const newConnection = new HubConnectionBuilder()
-            .withUrl("http://localhost:5000/simdynohub")
-            .withAutomaticReconnect()
-            .build();
+  useEffect(() => {
+    const service = new SignalRService('http://localhost:5000/simdynohub');
+    serviceRef.current = service;
 
-        connectionRef.current = newConnection;
+    const startConnection = async () => {
+      try {
+        await service.start();
+        setStatus('Connected to server');
+      } catch (err) {
+        console.log('SignalR connection failed: ', err);
+        setStatus('Connection failed. Retrying in 5s...');
+        setTimeout(startConnection, 5000);
+      }
+    };
 
-        const startConnection = async () => {
-            try {
-                await newConnection.start();
-                console.log("Connected to server");
-                setStatus("Connected to server");
-                setHasConnected(true);
-            } catch (err) {
-                if (hasConnected){
-                    setStatus("Connection failed. Retrying in 5s...");
-                    setTimeout(startConnection, 5000);
-                }
-            }
-        };
+    // Register event handlers
+    service.onTelemetry((data: Telemetry) => {
+      try {
+        setTelemetry(data);
+      } catch (error) {
+        console.error('Error processing telemetry:', error);
+      }
+    });
 
-        newConnection.on("ReceiveData", (data) => {
-            setTelemetry(data);
-        });
+    service.onMessage((msg: string) => {
+      try {
+        setMessage(msg);
+      } catch (error) {
+        console.error('Error processing message:', error);
+      }
+    });
 
-        newConnection.on("BroadcastMessage", (msg) => {
-            setMessage(msg);
-        });
+    service.onClose((error) => {
+      setStatus('Connection closed.');
+      if (error) {
+        console.error('Connection closed due to error:', error);
+      }
+    });
 
-        startConnection();
+    service.onReconnecting((error) => {
+      setStatus('Reconnecting...');
+      if (error) {
+        console.error('Reconnecting due to error:', error);
+      }
+    });
 
-        return () => {
-            newConnection.stop();
-        };
-    }, []);
+    service.onReconnected((connectionId) => {
+      setStatus('Reconnected.');
+      console.log('Reconnected with connectionId:', connectionId);
+    });
 
-    return (
-        <SignalRContext.Provider value={{ telemetry, status, message }}>
-            {children}
-        </SignalRContext.Provider>
-    );
+    startConnection();
+
+    // Cleanup
+    return () => {
+      service.stop().catch((err) => console.error('Error stopping SignalR:', err));
+    };
+  }, []);
+
+  return (
+    <SignalRContext.Provider value={{ telemetry, status, message }}>
+      {children}
+    </SignalRContext.Provider>
+  );
 };
 
 export const useSignalR = () => useContext(SignalRContext);

@@ -39,7 +39,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Box sx={{ height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column' }}>
         <CssBaseline />
 
-        {/* AppBar - Full Width */}
+        {/* Header */}
         <AppBar
           position="fixed"
           sx={{
@@ -61,7 +61,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </Toolbar>
         </AppBar>
 
-        {/* Content Container - Below AppBar */}
+        {/* Content Container */}
         <Box
           sx={{
             display: 'flex',
@@ -71,7 +71,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             marginTop: `${headerHeight}px`,
           }}
         >
-          {/* Fixed Sidebar */}
+          {/* Sidebar */}
           <Box
             sx={{
               width: drawerWidth,
@@ -87,7 +87,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </Box>
           </Box>
 
-          {/* Main Content */}
+          {/* Main Content View */}
           <Box
             component="main"
             sx={{

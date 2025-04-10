@@ -8,7 +8,6 @@ import {
 } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-// Define props interface
 interface MainLayoutProps {
   children: ReactNode;
 }

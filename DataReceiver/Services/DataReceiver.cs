@@ -69,6 +69,12 @@ public class Receiver
     
     public ForzaData ParseForza(byte[] packet)
     {
+        // TODO: Add a Dictionary to map variables to a boolean and then setup a library to
+        //       receive a JSON file from the Client with the names of the variables needed.
+        //       Then update the dictionary and set the needed variables to true.
+        //       Then, only parse the variables that are set to true and set the rest of
+        //       the variables to a default value of either NULL, 0, or false. This way,
+        //       we can reduce the amount of data sent to the client and improve performance.
         var data = new ForzaData();
 
         // Sled

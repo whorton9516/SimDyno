@@ -1,11 +1,14 @@
 ﻿// Portions of this file include code originally written by Austin Baccus (MIT License)
 
-using DataReceiver.Helpers;
+using DataReceiver.Utils;
 using Microsoft.AspNetCore.SignalR;
+
+using SimDynoServer.Helpers;
 using SimDynoServer.Hubs;
 using SimDynoServer.Models;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 
 namespace DataReceiver;
 
@@ -17,6 +20,7 @@ public class Receiver
     const string IpAddress = "127.0.0.1";
     const int Port = 5555;
 
+    private static readonly PropertyInfo[] ForzaDataProperties = typeof(ForzaData).GetProperties();
     bool _gameConnected = false;
 
     public Receiver(IHubContext<SimDynoHub> hubContext)
@@ -53,7 +57,16 @@ public class Receiver
 
                     var parsedData = ParseForza(buffer);
 
-                    await _hubContext.Clients.All.SendAsync("ReceiveData", parsedData);
+                    var filteredProps = new Dictionary<string, object>();
+                    var requestedProps = ForzaDataProperties.Where(p => SignalRHelper.RequestedFields.Contains(p.Name)).ToList();
+
+                    foreach (var prop in requestedProps)
+                    {
+                        var value = prop.GetValue(parsedData);
+                        filteredProps[prop.Name] = value is float or int ? value : 0.0;
+                    }
+
+                    await _hubContext.Clients.All.SendAsync("ReceiveData", filteredProps);
                 }
             }
         }
@@ -69,12 +82,6 @@ public class Receiver
     
     public ForzaData ParseForza(byte[] packet)
     {
-        // TODO: Add a Dictionary to map variables to a boolean and then setup a library to
-        //       receive a JSON file from the Client with the names of the variables needed.
-        //       Then update the dictionary and set the needed variables to true.
-        //       Then, only parse the variables that are set to true and set the rest of
-        //       the variables to a default value of either NULL, 0, or false. This way,
-        //       we can reduce the amount of data sent to the client and improve performance.
         var data = new ForzaData();
 
         // Sled

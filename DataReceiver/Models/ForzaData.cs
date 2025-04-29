@@ -6,8 +6,8 @@ namespace SimDynoServer.Models;
 public struct ForzaData
 {
 
-    private bool _isRaceOn;
-    private uint _timeStampMS;
+    private bool  _isRaceOn;
+    private uint  _timeStampMS;
     private float _engineMaxRpm;
     private float _engineIdleRpm;
     private float _currentEngineRpm;
@@ -59,11 +59,11 @@ public struct ForzaData
     private float _suspensionTravelMetersFR;
     private float _suspensionTravelMetersRL;
     private float _suspensionTravelMetersRR;
-    private uint _carOrdinal;
-    private uint _carClass;
-    private uint _carPerformanceIndex;
-    private uint _drivetrainType;
-    private uint _numCylinders;
+    private uint  _carOrdinal;
+    private uint  _carClass;
+    private uint  _carPerformanceIndex;
+    private uint  _drivetrainType;
+    private uint  _numCylinders;
     private float _positionX;
     private float _positionY;
     private float _positionZ;
@@ -83,21 +83,21 @@ public struct ForzaData
     private float _lastLapTime;
     private float _currentLapTime;
     private float _currentRaceTime;
-    private uint _lapNumber;
-    private uint _racePosition;
-    private uint _accelerator;
-    private uint _brake;
-    private uint _clutch;
-    private uint _handbrake;
-    private uint _gear;
-    private int _steer;
-    private uint _normalizedDrivingLine;
-    private uint _normalizedAIBrakeDifference;
+    private uint  _lapNumber;
+    private uint  _racePosition;
+    private uint  _accelerator;
+    private uint  _brake;
+    private uint  _clutch;
+    private uint  _handbrake;
+    private uint  _gear;
+    private int   _steer;
+    private uint  _normalizedDrivingLine;
+    private uint  _normalizedAIBrakeDifference;
     private float _tireWearFL;
     private float _tireWearFR;
     private float _tireWearRL;
     private float _tireWearRR;
-    private int _trackOrdinal;
+    private int   _trackOrdinal;
 
     /// <summary>
     /// 1 when race is on, 0 when in menus or the race is stopped
@@ -1324,9 +1324,7 @@ public struct ForzaData
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         if (propertyName != null)
-        {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }
 

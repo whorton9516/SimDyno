@@ -1,5 +1,4 @@
 ﻿using DataReceiver;
-using Microsoft.Extensions.Hosting;
 
 namespace SimDynoServer.Services;
 

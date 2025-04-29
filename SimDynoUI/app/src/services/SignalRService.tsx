@@ -1,6 +1,6 @@
 // SignalRService.tsx
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
-import { Telemetry, parseTelemetry } from '@/models/Telemetry';
+import { Telemetry, updateTelemetry } from '@/models/Telemetry';
 
 export class SignalRService {
   private connection: HubConnection;
@@ -22,9 +22,9 @@ export class SignalRService {
     }
   }
 
-  onTelemetry(callback: (telemetry: Telemetry) => void): void {
+  onTelemetry(callback: (telemetry: Partial<Telemetry>) => void): void {
     this.connection.on('ReceiveData', (data: unknown) => {
-      const telemetry = parseTelemetry(data);
+      const telemetry = updateTelemetry(data);
       callback(telemetry);
     });
   }
@@ -45,6 +45,17 @@ export class SignalRService {
 
   onReconnected(callback: (connectionId?: string) => void): void {
     this.connection.onreconnected((connectionId) => callback(connectionId));
+  }
+
+  async setRequiredFields(fields: string[]): Promise<void> {
+    try {
+      await this.connection.invoke(`SetRequestedFields`, fields);
+      console.log(`Requested fields set: `, fields);
+    } catch (err) {
+      console.error(`Error setting requested fields:`, err);
+      throw err;
+    }
+
   }
 
   async stop(): Promise<void> {

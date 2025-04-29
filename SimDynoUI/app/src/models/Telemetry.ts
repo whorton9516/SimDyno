@@ -190,31 +190,41 @@ export const defaultTelemetry = Object.freeze({
 } satisfies Telemetry);
 
 /**
- * Validates and transforms raw SignalR data into a Telemetry object.
+ * Validates and processes raw SignalR data into a telemetry update.
+ * Returns a Partial<Telemetry> with valid fields, or a full Telemetry if complete is true.
  * @param data The raw data received from SignalR.
- * @returns A valid Telemetry object, using defaults for missing or invalid fields.
+ * @param complete If true, returns a full Telemetry object with defaults for missing fields.
+ * @returns A Partial<Telemetry> or full Telemetry object.
  */
-export function parseTelemetry(data: unknown): Telemetry {
-  // If data is not an object, return the default telemetry
+export function updateTelemetry(data: unknown, complete: boolean = false): Partial<Telemetry> | Telemetry {
+  // If data is not an object, return the default telemetry or null
   if (!data || typeof data !== 'object') {
-    return { ...defaultTelemetry };
+    return complete ? { ...defaultTelemetry } : {};
   }
-  
-  // Spread defaultTelemetry and override with validated values
-  const result: Telemetry = {
-    ...defaultTelemetry,
-    ...(data as Record<string, unknown>),
-  };
-  
-  // Add stricter validation for each field to ensure numbers are actually numbers
-  for (const key of Object.keys(defaultTelemetry) as (keyof Telemetry)[]) {
-    const value = (data as Record<string, unknown>)[key];
-    if (typeof value !== 'number') {
-      result[key] = defaultTelemetry[key]; // Revert to default if not a number
-    } else {
-      result[key] = value;
+
+  const partial: Partial<Telemetry> = {};
+  // Loop through the keys in the given dictionary
+  for (const key in data) {
+    // Validate that the prop exists in defaultTelemetry
+    if (Object.prototype.hasOwnProperty.call(data, key) && key in defaultTelemetry) {
+      // Record the value of the key
+      const value = (data as Record<string, unknown>)[key];
+      // Confirm that the value is a number
+      if (typeof value === 'number') {
+        // Append the new data to the partial object
+        partial[key as keyof Telemetry] = value;
+      }
+      // TODO: handle when a value is not number.
     }
   }
-  
-  return result;
+
+  // Spread defaultTelemetry and override with validated props
+  if (complete) {
+    return {
+      ...defaultTelemetry,
+      ...partial,
+    };
+  }
+
+  return partial;
 }

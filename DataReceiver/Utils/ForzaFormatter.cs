@@ -1,8 +1,8 @@
 ﻿// Portions of this file include code originally written by Austin Baccus (MIT License)
 
-using static DataReceiver.Helpers.PacketParser;
+using static DataReceiver.Utils.PacketParser;
 
-namespace DataReceiver.Helpers;
+namespace DataReceiver.Utils;
 public static class ForzaFormatter
 {
     // Sled

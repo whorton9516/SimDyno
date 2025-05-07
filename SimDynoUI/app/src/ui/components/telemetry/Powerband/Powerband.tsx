@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, ChartsReferenceLine } from '@mui/x-charts';
 import { Box, Typography } from '@mui/material';
-import { useSignalR } from "../../../services/SignalRContext";
+import { useSignalR } from "../../../../services/SignalRContext";
 
 // Define the telemetry data structure from SignalR
 // interface TelemetryData {

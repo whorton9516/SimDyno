@@ -1,8 +1,8 @@
 ﻿// Portions of this file include code originally written by Austin Baccus (MIT License)
 
-using static DataReceiver.Utils.PacketParser;
+using static SimDynoServer.Utils.PacketParser;
 
-namespace DataReceiver.Utils;
+namespace SimDynoServer.Utils;
 public static class ForzaFormatter
 {
     // Sled

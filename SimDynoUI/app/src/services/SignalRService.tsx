@@ -1,4 +1,3 @@
-// SignalRService.tsx
 import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { Telemetry, updateTelemetry } from '@/models/Telemetry';
 
@@ -13,12 +12,16 @@ export class SignalRService {
   }
 
   async start(): Promise<void> {
-    try {
-      await this.connection.start();
-      console.log('SignalR Connected');
-    } catch (err) {
-      console.error('SignalR Connection Error:', err);
-      throw err; // Let the caller handle retries
+    if (this.connection.state === 'Disconnected') {
+      try {
+        await this.connection.start();
+        console.log('SignalR Connected');
+      } catch (err) {
+        console.error('SignalR Connection Error:', err);
+        throw err; // Let the caller handle retries
+      }
+    } else {
+      console.log(`Cannot start connection. Current state: ${this.connection.state}`);
     }
   }
 
@@ -45,17 +48,6 @@ export class SignalRService {
 
   onReconnected(callback: (connectionId?: string) => void): void {
     this.connection.onreconnected((connectionId) => callback(connectionId));
-  }
-
-  async setRequiredFields(fields: string[]): Promise<void> {
-    try {
-      await this.connection.invoke(`SetRequestedFields`, fields);
-      console.log(`Requested fields set: `, fields);
-    } catch (err) {
-      console.error(`Error setting requested fields:`, err);
-      throw err;
-    }
-
   }
 
   async stop(): Promise<void> {

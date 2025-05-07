@@ -1,6 +1,6 @@
 ﻿// Portions of this file include code originally written by Austin Baccus (MIT License)
 
-namespace DataReceiver.Utils;
+namespace SimDynoServer.Utils;
 public static class PacketParser
 {
     private const int DASH_PACKET_LENGTH = 331; // FM8

@@ -1,4 +1,3 @@
-// SignalRContext.tsx
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { SignalRService } from './SignalRService';
 import { Telemetry, defaultTelemetry, updateTelemetry } from '@/models/Telemetry';
@@ -7,14 +6,12 @@ interface SignalRContextType {
   telemetry: Telemetry;
   status: string;
   message: string;
-  setRequiredFields: (fields: string[]) => void;
 }
 
 const SignalRContext = createContext<SignalRContextType>({
   telemetry: defaultTelemetry,
   status: 'Waiting on server...',
-  message: '',
-  setRequiredFields: () => {},
+  message: ''
 });
 
 export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -22,7 +19,6 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [telemetry, setTelemetry] = useState<Telemetry>(defaultTelemetry);
   const [status, setStatus] = useState('Waiting on server...');
   const [message, setMessage] = useState('');
-  const [requiredFields, setRequiredFields] = useState<string[]>([]);
 
   useEffect(() => {
     const service = new SignalRService('http://localhost:5000/simdynohub');
@@ -30,10 +26,8 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     const startConnection = async () => {
       try {
-        await service.start();
+        await service.start(); // Rely on SignalRService to handle state
         setStatus('Connected to server');
-        await service.setRequiredFields(Object.keys(defaultTelemetry));
-        setRequiredFields(Object.keys(defaultTelemetry));
       } catch (err) {
         console.log('SignalR connection failed: ', err);
         setStatus('Connection failed. Retrying in 5s...');
@@ -75,12 +69,6 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
     service.onReconnected((connectionId) => {
       setStatus('Reconnected.');
       console.log('Reconnected with connectionId:', connectionId);
-      // Re-request fields on reconnect
-      if (requiredFields.length > 0) {
-        serviceRef.current?.setRequiredFields(requiredFields).catch((err) =>
-          console.error('Error re-setting required fields:', err)
-        );
-      }
     });
 
     startConnection();
@@ -91,16 +79,8 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, []);
 
-  useEffect(() => {
-    if (serviceRef.current && requiredFields.length > 0) {
-      serviceRef.current.setRequiredFields(requiredFields).catch((err) =>
-        console.error('Error setting required fields:', err)
-      );
-    }
-  }, [requiredFields]);
-
   return (
-    <SignalRContext.Provider value={{ telemetry, status, message, setRequiredFields }}>
+    <SignalRContext.Provider value={{ telemetry, status, message }}>
       {children}
     </SignalRContext.Provider>
   );

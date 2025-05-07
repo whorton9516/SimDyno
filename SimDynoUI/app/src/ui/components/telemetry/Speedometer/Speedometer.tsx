@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useSignalR } from "../../../services/SignalRContext";
+import { useSignalR } from "../../../../services/SignalRContext";
 
 const speedometerStyle: React.CSSProperties = {
   fontFamily: '"Michroma", serif',
@@ -12,11 +12,7 @@ const speedometerStyle: React.CSSProperties = {
 };
 
 export function Speedometer() {
-  const { telemetry, setRequiredFields } = useSignalR();
-
-  useEffect(() => {
-    setRequiredFields(['Speed', 'SpeedMPH', 'SpeedKPH']);
-  }, [setRequiredFields]);
+  const { telemetry } = useSignalR();
     
   return (
     <div style={speedometerStyle}>{telemetry.speedMPH} MPH</div>

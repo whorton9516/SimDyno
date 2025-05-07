@@ -1,4 +1,4 @@
-import { useSignalR } from "../../../services/SignalRContext";
+import { useSignalR } from "../../../../services/SignalRContext";
 import * as React from 'react';
 import {
   GaugeContainer,

@@ -1,74 +1,78 @@
 ﻿// Portions of this file include code originally written by Austin Baccus (MIT License)
 
-using DataReceiver.Utils;
-using Microsoft.AspNetCore.SignalR;
-
-using SimDynoServer.Helpers;
-using SimDynoServer.Hubs;
 using SimDynoServer.Models;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
+using SimDynoServer.Utils;
+using SimDynoDataRecorder.Models;
+using System.Text.Json;
 
-namespace DataReceiver;
+namespace SimDynoDataRecorder.Services;
 
-public class Receiver
+public class ReceiverService
 {
     public Socket? Listener { get; set; }
-    readonly IHubContext<SimDynoHub> _hubContext;
+    AppState _state { get; set; } = AppState.Idle;
 
-    const string IpAddress = "127.0.0.1";
-    const int Port = 5555;
+    private string _ipAddress = "127.0.0.1";
+    private int _port = 5555;
 
-    private static readonly PropertyInfo[] ForzaDataProperties = typeof(ForzaData).GetProperties();
+    bool _raceStarted = false;
     bool _gameConnected = false;
+    public bool Listen = false;
 
-    public Receiver(IHubContext<SimDynoHub> hubContext)
-    {
-        _hubContext = hubContext;
-    }
+    MainForm _parent;
+    RecordingService _recordingService;
 
-    public async Task ListenAsync()
+    public async Task ListenAsync(MainForm parentForm)
     {
         try
         {
+            _parent = parentForm;
             Listener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            var endPoint = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
+            var endPoint = new IPEndPoint(IPAddress.Parse(_ipAddress), _port);
             Listener.Bind(endPoint);
-
-            // Notify clients that the server is waiting for a connection from the game
-            await BroadcastMessageToClients("Waiting for connection from the game...");
 
             byte[] buffer = new byte[1024];
             EndPoint remote = new IPEndPoint(IPAddress.Any, 0);
 
-            while (true)
+            Console.WriteLine($"Started Listening at Endpoint: {endPoint.Address}:{endPoint.Port}");
+
+            while (Listen)
             {
                 var bytesReceived = Listener.ReceiveFrom(buffer, ref remote);
 
                 if (bytesReceived > 0)
                 {
-                    // If this is the first packet received, notify clients that the game is connected
                     if (!_gameConnected)
                     {
                         _gameConnected = true;
-                        await BroadcastMessageToClients("Game connected. Starting telemetry broadcast...");
                     }
 
                     var parsedData = ParseForza(buffer);
 
-                    var filteredProps = new Dictionary<string, object>();
-                    var requestedProps = ForzaDataProperties.Where(p => SignalRHelper.RequestedFields.Contains(p.Name)).ToList();
+                    if (!_raceStarted && parsedData.IsRaceOn)
+                        _raceStarted = true;
 
-                    foreach (var prop in requestedProps)
+                    if (_state == AppState.Recording)
                     {
-                        var value = prop.GetValue(parsedData);
-                        filteredProps[prop.Name] = value is float or int ? value : 0.0;
+                        if (_recordingService == null)
+                            _recordingService = new RecordingService();
+                        if (_raceStarted)
+                        {
+                            if (_recordingService.Filename.Length == 0)
+                                _recordingService.Filename = $"{parsedData.TrackOrdinal}_{parsedData.CarOrdinal}_{DateTime.Now.ToString("mmddyyyy")}.txt";
+
+                            _recordingService.Record(buffer);
+                        }
                     }
 
-                    await _hubContext.Clients.All.SendAsync("ReceiveData", filteredProps);
+                    BroadcastData(parsedData);
                 }
             }
+
+            _recordingService?.StopRecording();
+            Console.WriteLine("Listening stopped.");
         }
         catch (Exception ex)
         {
@@ -79,7 +83,7 @@ public class Receiver
             Listener?.Close();
         }
     }
-    
+
     public ForzaData ParseForza(byte[] packet)
     {
         var data = new ForzaData();
@@ -185,16 +189,35 @@ public class Receiver
         return data;
     }
 
-    async Task BroadcastMessageToClients(string message)
+    private void BroadcastData(ForzaData data)
     {
-        try
+        _parent.UpdateTelemetryDataView(data, _gameConnected);
+    }
+
+    public void UpdateState(AppState state)
+    {
+        _state = state;
+
+        switch (_state)
         {
-            Console.WriteLine(message); // Log the message to the server console
-            await _hubContext.Clients.All.SendAsync("BroadcastMessage", message);
+            case AppState.Idle:
+            case AppState.Broadcast:
+                Listen = false;
+                break;
+            case AppState.Listen:
+                Listen = true;
+                break;
+            case AppState.Recording:
+                Listen = true;
+                _recordingService = new RecordingService();
+                break;
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error broadcasting message: {ex.Message}");
-        }
-    }   
+    }
+
+    public void StartListening(MainForm parent, string ipAddress, string port)
+    {
+        _ipAddress = ipAddress;
+        _port = int.Parse(port);
+        Task.Run(() => ListenAsync(parent));
+    }
 }

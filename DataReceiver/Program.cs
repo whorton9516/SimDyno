@@ -1,7 +1,7 @@
 using SimDynoServer.Hubs;
 using SimDynoServer.Services;
 
-namespace DataReceiver;
+namespace SimDynoServer;
 
 public class Program
 {
@@ -19,8 +19,7 @@ public class Program
                 options.PayloadSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowNamedFloatingPointLiterals;
             });
 
-        builder.Services.AddSingleton<Receiver>();
-        builder.Services.AddHostedService<ReceiverHostedService>();
+        builder.Services.AddSingleton<ReceiverService>();
 
         var app = builder.Build();
 

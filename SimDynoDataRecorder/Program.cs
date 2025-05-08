@@ -1,3 +1,6 @@
+using Microsoft.Extensions.DependencyInjection;
+using SimDynoDataRecorder.Services;
+using SimDynoDataRecorder.Views;
 using System.Runtime.InteropServices;
 
 namespace SimDynoDataRecorder;
@@ -16,9 +19,19 @@ internal static class Program
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
+        var services = new ServiceCollection();
+
+        services.AddSingleton<BroadcastService>(provider =>
+            new BroadcastService("127.0.0.1", "5555"));
+        services.AddSingleton<ReceiverService>();
+        services.AddSingleton<RecordingService>();
+
+        services.AddSingleton<MainForm>();
+
+        var serviceProvider = services.BuildServiceProvider();
+
         ApplicationConfiguration.Initialize();
-        Application.Run(new MainForm());
+        var mainForm = serviceProvider.GetRequiredService<MainForm>();
+        Application.Run(mainForm);
     }
 }

@@ -5,7 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using SimDynoServer.Utils;
 using SimDynoDataRecorder.Models;
-using System.Text.Json;
 
 namespace SimDynoDataRecorder.Services;
 
@@ -13,6 +12,7 @@ public class ReceiverService
 {
     public Socket? Listener { get; set; }
     AppState _state { get; set; } = AppState.Idle;
+    readonly RecordingService _recordingService;
 
     private string _ipAddress = "127.0.0.1";
     private int _port = 5555;
@@ -22,9 +22,13 @@ public class ReceiverService
     public bool Listen = false;
 
     MainForm _parent;
-    RecordingService _recordingService;
     bool _recording = false;
     bool _firstPacket = true;
+
+    public ReceiverService(RecordingService recordingService)
+    {
+        _recordingService = recordingService;
+    }
 
     public async Task ListenAsync(MainForm parentForm)
     {
@@ -56,9 +60,6 @@ public class ReceiverService
                     {
                         if (parsedData.LapNumber == 1)
                         {
-                            if (_recordingService == null)
-                                _recordingService = new RecordingService();
-
                             if (_recordingService.Filename.Length == 0)
                                 _recordingService.Filename = 
                                     $"{parsedData.TrackOrdinal}_{parsedData.CarOrdinal}_{DateTime.Now.ToString("MMddyyyy")}.txt";
@@ -226,7 +227,6 @@ public class ReceiverService
                 break;
             case AppState.Recording:
                 Listen = true;
-                _recordingService = new RecordingService();
                 break;
         }
     }

@@ -4,14 +4,13 @@ using SimDynoDataRecorder.Views;
 using SimDynoServer.Models;
 using System.Net;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace SimDynoDataRecorder;
 
 public partial class MainForm : Form
 {
-    ReceiverService _receiverService;
-    BroadcastService _broadcastService;
+    readonly ReceiverService _receiverService;
+    readonly BroadcastService _broadcastService;
     AppState _state = AppState.Idle;
     bool _listening = false;
     TelemetryDataView _telemetryDataView;
@@ -19,17 +18,18 @@ public partial class MainForm : Form
     int _packetsReceived = 0;
 
     readonly HttpClient _httpClient = new HttpClient();
-
     public event EventHandler<AppState>? StateChanged;
 
-    public MainForm()
+    public MainForm(BroadcastService broadcastService, ReceiverService receiverService)
     {
         InitializeComponent();
+
+        _broadcastService = broadcastService;
+        _receiverService = receiverService;
 
         StateChanged += StateChangedHandler;
 
         BroadcastButton.Enabled = false;
-        _receiverService = new ReceiverService();
         _receiverService.UpdateState(_state);
         Directory.CreateDirectory(@"..\Recordings");
         var files = Directory.GetFiles(@"..\Recordings").ToList();
@@ -160,9 +160,8 @@ public partial class MainForm : Form
             _receiverService.UpdateState(_state);
             _receiverService.Listener?.Dispose();
 
-            _broadcastService = new BroadcastService(IPAddressTextBox.Text, PortTextBox.Text);
             var packets = GetPackets(_fileName);
-            Task.Run(() => _broadcastService.StartBroadcasting(packets));
+            Task.Run(() => _broadcastService.StartBroadcasting(packets, _telemetryDataView));
         }
         catch (Exception ex)
         {
@@ -388,7 +387,7 @@ public partial class MainForm : Form
 
     private void UpdateState(AppState state)
     {
-        _state = state;
+        State = state;
     }
 
     bool IsValidBase64(string str)

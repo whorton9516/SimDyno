@@ -23,6 +23,8 @@ public class ReceiverService
 
     MainForm _parent;
     RecordingService _recordingService;
+    bool _recording = false;
+    bool _firstPacket = true;
 
     public async Task ListenAsync(MainForm parentForm)
     {
@@ -33,7 +35,7 @@ public class ReceiverService
             var endPoint = new IPEndPoint(IPAddress.Parse(_ipAddress), _port);
             Listener.Bind(endPoint);
 
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[331];
             EndPoint remote = new IPEndPoint(IPAddress.Any, 0);
 
             Console.WriteLine($"Started Listening at Endpoint: {endPoint.Address}:{endPoint.Port}");
@@ -44,34 +46,49 @@ public class ReceiverService
 
                 if (bytesReceived > 0)
                 {
-                    if (!_gameConnected)
-                    {
-                        _gameConnected = true;
-                    }
-
                     var parsedData = ParseForza(buffer);
 
                     if (!_raceStarted && parsedData.IsRaceOn)
                         _raceStarted = true;
 
+
                     if (_state == AppState.Recording)
                     {
-                        if (_recordingService == null)
-                            _recordingService = new RecordingService();
-                        if (_raceStarted)
+                        if (parsedData.LapNumber == 1)
                         {
-                            if (_recordingService.Filename.Length == 0)
-                                _recordingService.Filename = $"{parsedData.TrackOrdinal}_{parsedData.CarOrdinal}_{DateTime.Now.ToString("mmddyyyy")}.txt";
+                            if (_recordingService == null)
+                                _recordingService = new RecordingService();
 
-                            _recordingService.Record(buffer);
+                            if (_recordingService.Filename.Length == 0)
+                                _recordingService.Filename = 
+                                    $"{parsedData.TrackOrdinal}_{parsedData.CarOrdinal}_{DateTime.Now.ToString("MMddyyyy")}.txt";
+
+                            if (!_recording)
+                            {
+                                Console.WriteLine("Reached lap range. Now recording.");
+                                _recordingService.StartRecording();
+                                _recording = true;
+                            }
+
+                            _recordingService.Record(buffer, _firstPacket);
+                            if (_firstPacket)
+                                _firstPacket = false;
+                        }
+
+                        if (parsedData.LapNumber > 1 && _recording)
+                        {
+                            _recording = false;
+                            Console.WriteLine("Out of lap range. Stopping recording.");
+                            _recordingService?.StopRecording();
+                            Listen = false;
                         }
                     }
 
-                    BroadcastData(parsedData);
+                    //BroadcastData(parsedData);
                 }
             }
 
-            _recordingService?.StopRecording();
+            //_recordingService?.StopRecording();
             Console.WriteLine("Listening stopped.");
         }
         catch (Exception ex)
@@ -191,7 +208,7 @@ public class ReceiverService
 
     private void BroadcastData(ForzaData data)
     {
-        _parent.UpdateTelemetryDataView(data, _gameConnected);
+        _parent.UpdateTelemetryDataView(data);
     }
 
     public void UpdateState(AppState state)

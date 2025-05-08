@@ -3,56 +3,56 @@ import { LineChart, ChartsReferenceLine } from '@mui/x-charts';
 import { Box, Typography } from '@mui/material';
 import { useSignalR } from "../../../../services/SignalRContext";
 
-// Define the telemetry data structure from SignalR
-// interface TelemetryData {
-//   currentEngineRpm: number;
-//   engineMaxRpm: number;
-//   engineIdleRpm: number;
-//   power: number;
-//   timestampMS: number;
-//   gear: number;
-// }
+type PowerMapState = {
+  map: Map<number, number>;
+  gear: number | null;
+};
 
 const Powerband: React.FC = () => {
   const { telemetry } = useSignalR();
-  const [currentGear, setCurrentGear] = useState<number | null>(null);
   // Only store power values in a Map keyed by RPM
-  const [powerMap, setPowerMap] = useState<Map<number, number>>(new Map());
+  const [powerMapState, setPowerMapState] = useState<PowerMapState>({
+    map: new Map(),
+    gear: null,
+  });
 
   useEffect(() => {
     if (!telemetry) return;
 
-    // Reset data when gear changes
-    if (currentGear !== telemetry.gear) {
-      setCurrentGear(telemetry.gear);
-      setPowerMap(new Map());
-    } else {
+    setPowerMapState((prevState) => {
+      // If gear changed, reset map
+      if (prevState.gear !== telemetry.gear) {
+        return {
+          map: new Map(),
+          gear: telemetry.gear,
+        };
+      }
       // Round RPM to nearest 100 for discretization
       const rpmKey = Math.round(telemetry.currentEngineRpm / 100) * 100;
       const currentPower = telemetry.power;
-
-      setPowerMap((prevMap) => {
-        const existing = prevMap.get(rpmKey);
-        if (existing === undefined || currentPower > existing) {
-          const newMap = new Map(prevMap);
-          newMap.set(rpmKey, currentPower);
-          return newMap;
-        }
-        return prevMap;
-      });
-    }
-  }, [telemetry, currentGear]);
+      const existing = prevState.map.get(rpmKey);
+      if (existing === undefined || currentPower > existing) {
+        const newMap = new Map(prevState.map);
+        newMap.set(rpmKey, currentPower);
+        return {
+          map: newMap,
+          gear: telemetry.gear,
+        };
+      }
+      return prevState;
+    });
+  }, [telemetry]);
 
   // Default X-axis bounds when no data is available
   const defaultMinRPM = 750;
   const defaultMaxRPM = 7000;
 
   // Use the actual powerMap bounds if available, otherwise default values
-  const minRPM = powerMap.size > 0 ? Math.min(...Array.from(powerMap.keys())) : defaultMinRPM;
-  const maxRPM = powerMap.size > 0 ? Math.max(...Array.from(powerMap.keys())) : defaultMaxRPM;
+  const minRPM = powerMapState.map.size > 0 ? Math.min(...Array.from(powerMapState.map.keys())) : defaultMinRPM;
+  const maxRPM = powerMapState.map.size > 0 ? Math.max(...Array.from(powerMapState.map.keys())) : defaultMaxRPM;
 
-  const rpmKeys = Array.from(powerMap.keys()).sort((a, b) => a - b);
-  const powerValues = rpmKeys.map((rpm) => powerMap.get(rpm)!);
+  const rpmKeys = Array.from(powerMapState.map.keys()).sort((a, b) => a - b);
+  const powerValues = rpmKeys.map((rpm) => powerMapState.map.get(rpm)!);
 
   // If no data, fallback to a flat line from minRPM to maxRPM
   const xAxisData = rpmKeys.length > 0 ? rpmKeys : [minRPM, maxRPM];

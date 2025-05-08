@@ -96,7 +96,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error when updating the AppState: {ex.Message}");
+            Console.WriteLine($"Error when _updating the AppState: {ex.Message}");
         }
     }
 
@@ -195,7 +195,7 @@ public partial class MainForm : Form
         {
             UpdateState(AppState.Recording);
             _receiverService.UpdateState(_state);
-            _receiverService.StartListening(this, IPAddressTextBox.Text, PortTextBox.Text);
+            //_receiverService.StartListening(this, IPAddressTextBox.Text, PortTextBox.Text);
         }
         catch (Exception ex)
         {
@@ -269,21 +269,29 @@ public partial class MainForm : Form
         _telemetryDataView.UpdateData(new ForzaData());
     }
 
-    public void UpdateTelemetryDataView(ForzaData data, bool gameConnected)
+    public void UpdateTelemetryDataView(ForzaData data)
     {
-        try
+        if (_telemetryDataView != null && !_telemetryDataView.Updating)
         {
-            if (_telemetryDataView != null)
+            if (InvokeRequired)
             {
-                _telemetryDataView.UpdateData(data);
-                _telemetryDataView.UpdateGameConnected(gameConnected);
-                _packetsReceived++;
-                labelPacketsReceived.Text = _packetsReceived.ToString();
+                BeginInvoke(new Action(() => UpdateTelemetryDataView(data)));
+                return;
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Ran into an issue when updating the TelemetryDataView: {ex.Message}");
+
+            try
+            {
+                if (_telemetryDataView != null)
+                {
+                    _telemetryDataView.UpdateData(data);
+                    _packetsReceived++;
+                    labelPacketsReceived.Text = _packetsReceived.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ran into an issue when _updating the TelemetryDataView: {ex.Message}");
+            } 
         }
     }
 
@@ -309,22 +317,27 @@ public partial class MainForm : Form
     private List<byte[]> GetPackets(string filename)
     {
         var packets = new List<byte[]>();
+        var filePath = Path.Combine(@"..\Recordings", filename);
+
         try
         {
-            foreach (var line in File.ReadLines(@"..\Recordings\" + filename))
+            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
             {
-                var sanitizedLine = SanitizeString(line);
-                if (IsValidBase64(sanitizedLine))
+                while (fs.Position < fs.Length)
                 {
-                    try
-                    {
-                        var packet = Convert.FromBase64String(sanitizedLine);
-                        packets.Add(packet);
-                    }
-                    catch (FormatException ex)
-                    {
-                        Console.WriteLine($"Invalid base64 str: {sanitizedLine}\n{ex.Message}");
-                    }
+                    // Read the length prefix (4 bytes)
+                    byte[] lengthBytes = new byte[4];
+                    int read = fs.Read(lengthBytes, 0, 4);
+                    if (read < 4) break;
+
+                    int packetLength = BitConverter.ToInt32(lengthBytes, 0);
+
+                    // Read the packet
+                    byte[] packet = new byte[packetLength];
+                    read = fs.Read(packet, 0, packetLength);
+                    if (read < packetLength) break;
+
+                    packets.Add(packet);
                 }
             }
         }
@@ -340,6 +353,7 @@ public partial class MainForm : Form
         return packets;
     }
 
+
     private void IPAddressTextBox_TextChanged(object sender, EventArgs e)
     {
         if (!string.IsNullOrWhiteSpace(IPAddressTextBox.Text))
@@ -347,7 +361,7 @@ public partial class MainForm : Form
             if (!IPAddress.TryParse(IPAddressTextBox.Text, out _))
             {
                 IPAddressTextBox.BackColor = Color.Red;
-                IPAddressTextBox.Text = string.Empty;
+                IPAddressTextBox.Text = "127.0.0.1";
             }
             else
             {
@@ -363,7 +377,7 @@ public partial class MainForm : Form
             if (!int.TryParse(PortTextBox.Text, out _) || PortTextBox.Text.Length >= 5)
             {
                 PortTextBox.BackColor = Color.Red;
-                PortTextBox.Text = string.Empty;
+                PortTextBox.Text = "5555";
             }
             else
             {

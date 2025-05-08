@@ -1,49 +1,51 @@
-﻿using System.Text;
-using System.Text.Json;
-
-namespace SimDynoDataRecorder.Services;
+﻿namespace SimDynoDataRecorder.Services;
 public class RecordingService
 {
     string _baseDir = AppContext.BaseDirectory;
     string _fileName = string.Empty;
-    List<string> _packets;
-
-    public RecordingService()
-    {
-        _packets = new List<string>();
-    }
-
-    public void Record(byte[] packet)
-    {
-        var packetString = Convert.ToBase64String(packet);
-        _packets.Add(packetString);
-    }
+    FileStream? _fileStream;
 
     public void SetFileName(string fileName)
     {
         _fileName = fileName;
     }
 
-    public void StopRecording()
+    public void StartRecording()
     {
-        Console.WriteLine("Recording Stopped.");
-        SaveRecording(_packets, _fileName);
+        var folderPath = Path.Combine(_baseDir, @"..\Recordings");
+        folderPath = Path.GetFullPath(folderPath);
+        Directory.CreateDirectory(folderPath); // Ensure directory exists
+        var filePath = Path.Combine(folderPath, _fileName);
+
+        // Open the file for writing (overwrite if exists)
+        _fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
     }
 
-    private void SaveRecording(List<string> packets, string filename)
+    public void Record(byte[] packet, bool isFirstPacket = false)
     {
-        try
-        {
-            var folderPath = Path.Combine(_baseDir, @"..\Recordings");
-            folderPath = Path.GetFullPath(folderPath);
-            var filePath = Path.Combine(folderPath, filename);
+        if (_fileStream == null)
+            throw new InvalidOperationException("Recording has not been started.");
 
-            File.WriteAllText(filePath, JsonSerializer.Serialize(packets));
+        // Write the length of the packet (as 4 bytes, little-endian)
+        var lengthBytes = BitConverter.GetBytes(packet.Length);
+        _fileStream.Write(lengthBytes, 0, lengthBytes.Length);
+
+        // Write the actual packet bytes
+        _fileStream.Write(packet, 0, packet.Length);
+    }
+
+    public void StopRecording()
+    {
+        if (_fileStream != null)
+        {
+            _fileStream.Flush();
+            _fileStream.Close();
+            _fileStream = null;
             Console.WriteLine("Recording Saved");
         }
-        catch (IOException ex)
+        else
         {
-            Console.WriteLine($"Error while saving the recording: {ex.Message}");
+            Console.WriteLine("No recording in progress.");
         }
     }
 

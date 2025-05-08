@@ -1,17 +1,26 @@
 ﻿using SimDynoServer.Models;
 
+using System.ComponentModel;
+
 namespace SimDynoDataRecorder.Views;
 public partial class TelemetryDataView : Form
 {
+    private bool _updating = false;
     public TelemetryDataView()
     {
         InitializeComponent();
+    }
+
+    public bool Updating
+    {
+        get => _updating;
     }
 
     public void UpdateData(ForzaData data)
     {
         try
         {
+            _updating = true;
             labelDrivetrainType.Text = data.DrivetrainType.ToString() ?? "--";
             labelNumCylinders.Text = data.NumCylinders.ToString() ?? "--";
             labelClassAndIndex.Text = data.CarClass.ToString() ?? "--";
@@ -107,10 +116,9 @@ public partial class TelemetryDataView : Form
         {
             Console.WriteLine($"UpdateData: {ex.Message}");
         }
-    }
-
-    public void UpdateGameConnected(bool isConnected)
-    {
-        labelGameConnected.Text = isConnected.ToString();
+        finally
+        {
+            _updating = false;
+        }
     }
 }

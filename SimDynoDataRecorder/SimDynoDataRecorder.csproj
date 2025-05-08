@@ -9,10 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Recordings\{TrackOrdinal}-{CarOrdinal}-{Date}.json">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+    <Compile Remove="Recordings\**" />
+    <EmbeddedResource Remove="Recordings\**" />
+    <None Remove="Recordings\**" />
   </ItemGroup>
 
   <ItemGroup>

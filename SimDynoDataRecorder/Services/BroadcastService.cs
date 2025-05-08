@@ -26,21 +26,21 @@ public class BroadcastService
             {
                 Console.WriteLine($"Starting Broadcast.");
 
-                foreach (var packet in packets)
+                for (int i = 0; i < packets.Count; ++i)
                 {
                     try
                     {
-                        await _udpClient.SendAsync(packet, packet.Length, _endPoint);
+                        await _udpClient.SendAsync(packets[i], packets[i].Length, _endPoint);
                         Console.WriteLine($"Sent Packet.");
                         await Task.Delay(interval);
                     }
                     catch (SocketException ex)
                     {
-                        Console.WriteLine($"Issue sending packet: {packet}\n{ex.Message}");
+                        Console.WriteLine($"Issue sending packet: {packets[i]}\n{ex.Message}");
                     }
                 }
 
-                Console.WriteLine("Recording Broadcast finished.");
+                Console.WriteLine("Broadcast finished.");
             }
         }
         catch (Exception ex)

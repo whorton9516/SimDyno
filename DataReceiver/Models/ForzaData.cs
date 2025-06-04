@@ -118,7 +118,7 @@ public struct ForzaData
     /// <summary>
     /// Current session timer. Will eventually overflow to 0.
     /// </summary>
-    public uint TimestampMS
+    public uint TimeStampMS
     {
         get => _timeStampMS;
         set

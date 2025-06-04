@@ -10,6 +10,15 @@ const TelemetryDisplayStyle: React.CSSProperties = {
   borderRadius: '5px',
 };
 
+function formatTimeStamp(ms: number) {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const milliseconds = ms % 1000;
+  return `${minutes.toString().padStart(2, '0')}:${seconds
+    .toString()
+    .padStart(2, '0')}:${milliseconds.toString().padStart(3, '0')}`;
+}
+
 export function TelemetryDisplay() {
   const { telemetry } = useSignalR();
 
@@ -20,7 +29,7 @@ export function TelemetryDisplay() {
   return (
     <div style={TelemetryDisplayStyle}>
       <div>isRaceOn: {telemetry.isRaceOn.toString()}</div>
-      <div>timeStampMS: {telemetry.timeStampMS}</div>
+      <div>timeStampMS: {formatTimeStamp(telemetry.timeStampMS)}</div>
       <div>engineMaxRpm: {telemetry.engineMaxRpm}</div>
       <div>engineIdleRpm: {telemetry.engineIdleRpm}</div>
       <div>currentEngineRpm: {telemetry.currentEngineRpm}</div>

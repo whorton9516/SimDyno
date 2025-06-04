@@ -21,7 +21,7 @@ internal static class Program
 
         var services = new ServiceCollection();
 
-        services.AddSingleton<BroadcastService>(provider =>
+        services.AddTransient(provider =>
             new BroadcastService("127.0.0.1", "5555"));
         services.AddSingleton<ReceiverService>();
         services.AddSingleton<RecordingService>();

@@ -126,6 +126,16 @@ partial class TelemetryDataView
         label2 = new Label();
         label1 = new Label();
         groupBoxDashData = new GroupBox();
+        groupBox16 = new GroupBox();
+        labelTireWearRR = new Label();
+        labelTireWearRL = new Label();
+        labelTireWearFR = new Label();
+        labelTireWearFL = new Label();
+        groupBox15 = new GroupBox();
+        labelNormalizedAIBrakeDifference = new Label();
+        labelNormalizedDrivingLine = new Label();
+        label64 = new Label();
+        label65 = new Label();
         groupBox14 = new GroupBox();
         labelSteer = new Label();
         labelGear = new Label();
@@ -140,6 +150,8 @@ partial class TelemetryDataView
         label52 = new Label();
         label53 = new Label();
         groupBox13 = new GroupBox();
+        labelTrackOrdinal = new Label();
+        label60 = new Label();
         labelRacePosition = new Label();
         label37 = new Label();
         labelLastLap = new Label();
@@ -179,18 +191,6 @@ partial class TelemetryDataView
         label22 = new Label();
         label27 = new Label();
         label28 = new Label();
-        groupBox15 = new GroupBox();
-        labelNormalizedAIBrakeDifference = new Label();
-        labelNormalizedDrivingLine = new Label();
-        label64 = new Label();
-        label65 = new Label();
-        groupBox16 = new GroupBox();
-        labelTireWearRR = new Label();
-        labelTireWearRL = new Label();
-        labelTireWearFR = new Label();
-        labelTireWearFL = new Label();
-        label60 = new Label();
-        labelTrackOrdinal = new Label();
         groupBoxSledData.SuspendLayout();
         groupBox9.SuspendLayout();
         groupBox8.SuspendLayout();
@@ -209,13 +209,13 @@ partial class TelemetryDataView
         groupBoxRPM.SuspendLayout();
         groupBoxGameState.SuspendLayout();
         groupBoxDashData.SuspendLayout();
+        groupBox16.SuspendLayout();
+        groupBox15.SuspendLayout();
         groupBox14.SuspendLayout();
         groupBox13.SuspendLayout();
         groupBox12.SuspendLayout();
         groupBox11.SuspendLayout();
         groupBox10.SuspendLayout();
-        groupBox15.SuspendLayout();
-        groupBox16.SuspendLayout();
         SuspendLayout();
         // 
         // groupBoxSledData
@@ -1198,10 +1198,108 @@ partial class TelemetryDataView
         groupBoxDashData.Controls.Add(groupBox10);
         groupBoxDashData.Location = new Point(12, 384);
         groupBoxDashData.Name = "groupBoxDashData";
-        groupBoxDashData.Size = new Size(1069, 343);
+        groupBoxDashData.Size = new Size(1069, 272);
         groupBoxDashData.TabIndex = 1;
         groupBoxDashData.TabStop = false;
         groupBoxDashData.Text = "Dash";
+        // 
+        // groupBox16
+        // 
+        groupBox16.Controls.Add(labelTireWearRR);
+        groupBox16.Controls.Add(labelTireWearRL);
+        groupBox16.Controls.Add(labelTireWearFR);
+        groupBox16.Controls.Add(labelTireWearFL);
+        groupBox16.Location = new Point(506, 173);
+        groupBox16.Name = "groupBox16";
+        groupBox16.Size = new Size(140, 91);
+        groupBox16.TabIndex = 16;
+        groupBox16.TabStop = false;
+        groupBox16.Text = "Tire Wear";
+        // 
+        // labelTireWearRR
+        // 
+        labelTireWearRR.AutoSize = true;
+        labelTireWearRR.Location = new Point(66, 52);
+        labelTireWearRR.Name = "labelTireWearRR";
+        labelTireWearRR.Size = new Size(34, 25);
+        labelTireWearRR.TabIndex = 13;
+        labelTireWearRR.Text = "RR";
+        // 
+        // labelTireWearRL
+        // 
+        labelTireWearRL.AutoSize = true;
+        labelTireWearRL.Location = new Point(6, 52);
+        labelTireWearRL.Name = "labelTireWearRL";
+        labelTireWearRL.Size = new Size(31, 25);
+        labelTireWearRL.TabIndex = 11;
+        labelTireWearRL.Text = "RL";
+        // 
+        // labelTireWearFR
+        // 
+        labelTireWearFR.AutoSize = true;
+        labelTireWearFR.Location = new Point(66, 27);
+        labelTireWearFR.Name = "labelTireWearFR";
+        labelTireWearFR.Size = new Size(32, 25);
+        labelTireWearFR.TabIndex = 10;
+        labelTireWearFR.Text = "FR";
+        // 
+        // labelTireWearFL
+        // 
+        labelTireWearFL.AutoSize = true;
+        labelTireWearFL.Location = new Point(6, 27);
+        labelTireWearFL.Name = "labelTireWearFL";
+        labelTireWearFL.Size = new Size(29, 25);
+        labelTireWearFL.TabIndex = 9;
+        labelTireWearFL.Text = "FL";
+        // 
+        // groupBox15
+        // 
+        groupBox15.Controls.Add(labelNormalizedAIBrakeDifference);
+        groupBox15.Controls.Add(labelNormalizedDrivingLine);
+        groupBox15.Controls.Add(label64);
+        groupBox15.Controls.Add(label65);
+        groupBox15.Location = new Point(264, 159);
+        groupBox15.Name = "groupBox15";
+        groupBox15.Size = new Size(237, 91);
+        groupBox15.TabIndex = 15;
+        groupBox15.TabStop = false;
+        groupBox15.Text = "Driving Accuracy";
+        // 
+        // labelNormalizedAIBrakeDifference
+        // 
+        labelNormalizedAIBrakeDifference.AutoSize = true;
+        labelNormalizedAIBrakeDifference.Location = new Point(187, 52);
+        labelNormalizedAIBrakeDifference.Name = "labelNormalizedAIBrakeDifference";
+        labelNormalizedAIBrakeDifference.Size = new Size(42, 25);
+        labelNormalizedAIBrakeDifference.TabIndex = 4;
+        labelNormalizedAIBrakeDifference.Text = "000";
+        // 
+        // labelNormalizedDrivingLine
+        // 
+        labelNormalizedDrivingLine.AutoSize = true;
+        labelNormalizedDrivingLine.Location = new Point(187, 27);
+        labelNormalizedDrivingLine.Name = "labelNormalizedDrivingLine";
+        labelNormalizedDrivingLine.Size = new Size(42, 25);
+        labelNormalizedDrivingLine.TabIndex = 3;
+        labelNormalizedDrivingLine.Text = "000";
+        // 
+        // label64
+        // 
+        label64.AutoSize = true;
+        label64.Location = new Point(6, 52);
+        label64.Name = "label64";
+        label64.Size = new Size(182, 25);
+        label64.TabIndex = 1;
+        label64.Text = "AI Braking Difference:";
+        // 
+        // label65
+        // 
+        label65.AutoSize = true;
+        label65.Location = new Point(79, 27);
+        label65.Name = "label65";
+        label65.Size = new Size(109, 25);
+        label65.TabIndex = 0;
+        label65.Text = "Driving Line:";
         // 
         // groupBox14
         // 
@@ -1354,6 +1452,24 @@ partial class TelemetryDataView
         groupBox13.TabIndex = 13;
         groupBox13.TabStop = false;
         groupBox13.Text = "Race Info";
+        // 
+        // labelTrackOrdinal
+        // 
+        labelTrackOrdinal.AutoSize = true;
+        labelTrackOrdinal.Location = new Point(56, 27);
+        labelTrackOrdinal.Name = "labelTrackOrdinal";
+        labelTrackOrdinal.Size = new Size(113, 25);
+        labelTrackOrdinal.TabIndex = 18;
+        labelTrackOrdinal.Text = "{Track Name}";
+        // 
+        // label60
+        // 
+        label60.AutoSize = true;
+        label60.Location = new Point(7, 27);
+        label60.Name = "label60";
+        label60.Size = new Size(55, 25);
+        label60.TabIndex = 17;
+        label60.Text = "Track:";
         // 
         // labelRacePosition
         // 
@@ -1730,127 +1846,11 @@ partial class TelemetryDataView
         label28.TabIndex = 0;
         label28.Text = "X:";
         // 
-        // groupBox15
-        // 
-        groupBox15.Controls.Add(labelNormalizedAIBrakeDifference);
-        groupBox15.Controls.Add(labelNormalizedDrivingLine);
-        groupBox15.Controls.Add(label64);
-        groupBox15.Controls.Add(label65);
-        groupBox15.Location = new Point(264, 159);
-        groupBox15.Name = "groupBox15";
-        groupBox15.Size = new Size(237, 114);
-        groupBox15.TabIndex = 15;
-        groupBox15.TabStop = false;
-        groupBox15.Text = "Driving Accuracy";
-        // 
-        // labelNormalizedAIBrakeDifference
-        // 
-        labelNormalizedAIBrakeDifference.AutoSize = true;
-        labelNormalizedAIBrakeDifference.Location = new Point(187, 52);
-        labelNormalizedAIBrakeDifference.Name = "labelNormalizedAIBrakeDifference";
-        labelNormalizedAIBrakeDifference.Size = new Size(42, 25);
-        labelNormalizedAIBrakeDifference.TabIndex = 4;
-        labelNormalizedAIBrakeDifference.Text = "000";
-        // 
-        // labelNormalizedDrivingLine
-        // 
-        labelNormalizedDrivingLine.AutoSize = true;
-        labelNormalizedDrivingLine.Location = new Point(187, 27);
-        labelNormalizedDrivingLine.Name = "labelNormalizedDrivingLine";
-        labelNormalizedDrivingLine.Size = new Size(42, 25);
-        labelNormalizedDrivingLine.TabIndex = 3;
-        labelNormalizedDrivingLine.Text = "000";
-        // 
-        // label64
-        // 
-        label64.AutoSize = true;
-        label64.Location = new Point(6, 52);
-        label64.Name = "label64";
-        label64.Size = new Size(182, 25);
-        label64.TabIndex = 1;
-        label64.Text = "AI Braking Difference:";
-        // 
-        // label65
-        // 
-        label65.AutoSize = true;
-        label65.Location = new Point(79, 27);
-        label65.Name = "label65";
-        label65.Size = new Size(109, 25);
-        label65.TabIndex = 0;
-        label65.Text = "Driving Line:";
-        // 
-        // groupBox16
-        // 
-        groupBox16.Controls.Add(labelTireWearRR);
-        groupBox16.Controls.Add(labelTireWearRL);
-        groupBox16.Controls.Add(labelTireWearFR);
-        groupBox16.Controls.Add(labelTireWearFL);
-        groupBox16.Location = new Point(506, 173);
-        groupBox16.Name = "groupBox16";
-        groupBox16.Size = new Size(140, 91);
-        groupBox16.TabIndex = 16;
-        groupBox16.TabStop = false;
-        groupBox16.Text = "Tire Wear";
-        // 
-        // labelTireWearRR
-        // 
-        labelTireWearRR.AutoSize = true;
-        labelTireWearRR.Location = new Point(66, 52);
-        labelTireWearRR.Name = "labelTireWearRR";
-        labelTireWearRR.Size = new Size(34, 25);
-        labelTireWearRR.TabIndex = 13;
-        labelTireWearRR.Text = "RR";
-        // 
-        // labelTireWearRL
-        // 
-        labelTireWearRL.AutoSize = true;
-        labelTireWearRL.Location = new Point(6, 52);
-        labelTireWearRL.Name = "labelTireWearRL";
-        labelTireWearRL.Size = new Size(31, 25);
-        labelTireWearRL.TabIndex = 11;
-        labelTireWearRL.Text = "RL";
-        // 
-        // labelTireWearFR
-        // 
-        labelTireWearFR.AutoSize = true;
-        labelTireWearFR.Location = new Point(66, 27);
-        labelTireWearFR.Name = "labelTireWearFR";
-        labelTireWearFR.Size = new Size(32, 25);
-        labelTireWearFR.TabIndex = 10;
-        labelTireWearFR.Text = "FR";
-        // 
-        // labelTireWearFL
-        // 
-        labelTireWearFL.AutoSize = true;
-        labelTireWearFL.Location = new Point(6, 27);
-        labelTireWearFL.Name = "labelTireWearFL";
-        labelTireWearFL.Size = new Size(29, 25);
-        labelTireWearFL.TabIndex = 9;
-        labelTireWearFL.Text = "FL";
-        // 
-        // label60
-        // 
-        label60.AutoSize = true;
-        label60.Location = new Point(7, 27);
-        label60.Name = "label60";
-        label60.Size = new Size(55, 25);
-        label60.TabIndex = 17;
-        label60.Text = "Track:";
-        // 
-        // labelTrackOrdinal
-        // 
-        labelTrackOrdinal.AutoSize = true;
-        labelTrackOrdinal.Location = new Point(56, 27);
-        labelTrackOrdinal.Name = "labelTrackOrdinal";
-        labelTrackOrdinal.Size = new Size(113, 25);
-        labelTrackOrdinal.TabIndex = 18;
-        labelTrackOrdinal.Text = "{Track Name}";
-        // 
         // TelemetryDataView
         // 
         AutoScaleDimensions = new SizeF(10F, 25F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(1093, 739);
+        ClientSize = new Size(1093, 669);
         Controls.Add(groupBoxDashData);
         Controls.Add(groupBoxSledData);
         FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -1892,6 +1892,10 @@ partial class TelemetryDataView
         groupBoxGameState.ResumeLayout(false);
         groupBoxGameState.PerformLayout();
         groupBoxDashData.ResumeLayout(false);
+        groupBox16.ResumeLayout(false);
+        groupBox16.PerformLayout();
+        groupBox15.ResumeLayout(false);
+        groupBox15.PerformLayout();
         groupBox14.ResumeLayout(false);
         groupBox14.PerformLayout();
         groupBox13.ResumeLayout(false);
@@ -1902,10 +1906,6 @@ partial class TelemetryDataView
         groupBox11.PerformLayout();
         groupBox10.ResumeLayout(false);
         groupBox10.PerformLayout();
-        groupBox15.ResumeLayout(false);
-        groupBox15.PerformLayout();
-        groupBox16.ResumeLayout(false);
-        groupBox16.PerformLayout();
         ResumeLayout(false);
     }
 

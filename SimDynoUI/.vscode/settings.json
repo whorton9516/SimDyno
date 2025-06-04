@@ -5,5 +5,13 @@
       "**/*.sass",
       "**/*.less",
       "node_modules/@mantine/core/styles.css"
-    ]
+    ],
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "github.copilot.enable": {
+      "markdown": true
+    },
+    "github.copilot.chat.followUps": "always",
+    "github.copilot.chat.scopeSelection": true,
+    "github.copilot.chat.codesearch.enabled": true,
+    "github.copilot.chat.agent.thinkingTool": true
   }

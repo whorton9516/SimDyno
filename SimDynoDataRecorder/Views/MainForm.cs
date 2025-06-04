@@ -16,8 +16,6 @@ public partial class MainForm : Form
     TelemetryDataView _telemetryDataView;
     string _fileName = string.Empty;
     int _packetsReceived = 0;
-
-    readonly HttpClient _httpClient = new HttpClient();
     public event EventHandler<AppState>? StateChanged;
 
     public MainForm(BroadcastService broadcastService, ReceiverService receiverService)
@@ -153,9 +151,6 @@ public partial class MainForm : Form
     {
         try
         {
-            // Automatically start the Listener on the Server
-            await StartRemoteListenerAsync();
-
             UpdateState(AppState.Broadcast);
             _receiverService.UpdateState(_state);
             _receiverService.Listener?.Dispose();
@@ -174,9 +169,6 @@ public partial class MainForm : Form
     {
         try
         {
-            // Automatically stop the Listener on the Server
-            await StopRemoteListenerAsync();
-
             UpdateState(AppState.Idle);
             _receiverService.UpdateState(_state);
             _broadcastService.StopBroadcasting();
@@ -264,25 +256,20 @@ public partial class MainForm : Form
         }
 
         _telemetryDataView = new TelemetryDataView();
+        _telemetryDataView.SetBroadcastService(_broadcastService);
         _telemetryDataView.Show();
-        _telemetryDataView.UpdateData(new ForzaData());
+        _telemetryDataView.QueueData(new ForzaData());
     }
 
     public void UpdateTelemetryDataView(ForzaData data)
     {
-        if (_telemetryDataView != null && !_telemetryDataView.Updating)
+        if (_telemetryDataView != null)
         {
-            if (InvokeRequired)
-            {
-                BeginInvoke(new Action(() => UpdateTelemetryDataView(data)));
-                return;
-            }
-
             try
             {
                 if (_telemetryDataView != null)
                 {
-                    _telemetryDataView.UpdateData(data);
+                    _telemetryDataView.QueueData(data);
                     _packetsReceived++;
                     labelPacketsReceived.Text = _packetsReceived.ToString();
                 }
@@ -405,37 +392,5 @@ public partial class MainForm : Form
     {
         var sanitizedString = str.Replace("\"", "").Replace(",", "").Replace("[", "").Replace("]", "").Trim();
         return sanitizedString;
-    }
-
-    private async Task StartRemoteListenerAsync()
-    {
-        try
-        {
-            var response = await _httpClient.PostAsync("http://localhost:5000/api/simdyno/listener/start", null);
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("Failed to start remote listener.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error starting remote listener: {ex.Message}");
-        }
-    }
-
-    private async Task StopRemoteListenerAsync()
-    {
-        try
-        {
-            var response = await _httpClient.PostAsync("http://localhost:5000/api/simdyno/listener/stop", null);
-            if (!response.IsSuccessStatusCode)
-            {
-                Console.WriteLine("Failed to stop remote listener.");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error stopping remote listener: {ex.Message}");
-        }
     }
 }

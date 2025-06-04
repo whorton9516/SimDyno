@@ -1,124 +1,184 @@
-﻿using SimDynoServer.Models;
-
-using System.ComponentModel;
+﻿using SimDynoDataRecorder.Services;
+using SimDynoServer.Models;
 
 namespace SimDynoDataRecorder.Views;
 public partial class TelemetryDataView : Form
 {
-    private bool _updating = false;
+    private ForzaData? _latestData;
+    private readonly System.Windows.Forms.Timer _uiTimer;
+    private readonly Dictionary<string, Label> _labelMap;
+
+    private uint? _startTimestampMS = null;
+    private BroadcastService? _broadcastService;
+
     public TelemetryDataView()
     {
         InitializeComponent();
+        DoubleBuffered = true;
+
+        _labelMap = new Dictionary<string, Label>
+        {
+            { nameof(ForzaData.DrivetrainType), labelDrivetrainType },
+            { nameof(ForzaData.NumCylinders), labelNumCylinders },
+            { nameof(ForzaData.CarClass), labelClassAndIndex },
+            { nameof(ForzaData.CarOrdinal), labelCarOrdinal },
+            { nameof(ForzaData.SuspensionTravelMetersRR), labelSuspensionTravelMetersRR },
+            { nameof(ForzaData.SuspensionTravelMetersRL), labelSuspensionTravelMetersRL },
+            { nameof(ForzaData.SuspensionTravelMetersFR), labelSuspensionTravelMetersFR },
+            { nameof(ForzaData.SuspensionTravelMetersFL), labelSuspensionTravelMetersFL },
+            { nameof(ForzaData.TireCombinedSlipRR), labelTireCombinedSlipRR },
+            { nameof(ForzaData.TireCombinedSlipRL), labelTireCombinedSlipRL },
+            { nameof(ForzaData.TireCombinedSlipFR), labelTireCombinedSlipFR },
+            { nameof(ForzaData.TireCombinedSlipFL), labelTireCombinedSlipFL },
+            { nameof(ForzaData.TireSlipAngleRR), labelTireSlipAngleRR },
+            { nameof(ForzaData.TireSlipAngleRL), labelTireSlipAngleRL },
+            { nameof(ForzaData.TireSlipAngleFR), labelTireSlipAngleFR },
+            { nameof(ForzaData.TireSlipAngleFL), labelTireSlipAngleFL },
+            { nameof(ForzaData.SurfaceRumbleRR), labelSurfaceRumbleRR },
+            { nameof(ForzaData.SurfaceRumbleRL), labelSurfaceRumbleRL },
+            { nameof(ForzaData.SurfaceRumbleFR), labelSurfaceRumbleFR },
+            { nameof(ForzaData.SurfaceRumbleFL), labelSurfaceRumbleFL },
+            { nameof(ForzaData.WheelInPuddleDepthRR), labelWheelInPuddleDepthRR },
+            { nameof(ForzaData.WheelInPuddleDepthRL), labelWheelInPuddleDepthRL },
+            { nameof(ForzaData.WheelInPuddleDepthFR), labelWheelInPuddleDepthFR },
+            { nameof(ForzaData.WheelInPuddleDepthFL), labelWheelInPuddleDepthFL },
+            { nameof(ForzaData.WheelOnRumbleStripRR), labelWheelOnRumbleStripRR },
+            { nameof(ForzaData.WheelOnRumbleStripRL), labelWheelOnRumbleStripRL },
+            { nameof(ForzaData.WheelOnRumbleStripFR), labelWheelOnRumbleStripFR },
+            { nameof(ForzaData.WheelOnRumbleStripFL), labelWheelOnRumbleStripFL },
+            { nameof(ForzaData.WheelRotationSpeedRR), labelWheelRotationSpeedRR },
+            { nameof(ForzaData.WheelRotationSpeedRL), labelWheelRotationSpeedRL },
+            { nameof(ForzaData.WheelRotationSpeedFR), labelWheelRotationSpeedFR },
+            { nameof(ForzaData.WheelRotationSpeedFL), labelWheelRotationSpeedFL },
+            { nameof(ForzaData.TireSlipRatioRR), labelTireSlipRatioRR },
+            { nameof(ForzaData.TireSlipRatioRL), labelTireSlipRatioRL },
+            { nameof(ForzaData.TireSlipRatioFR), labelTireSlipRatioFR },
+            { nameof(ForzaData.TireSlipRatioFL), labelTireSlipRatioFL },
+            { nameof(ForzaData.Roll), labelRoll },
+            { nameof(ForzaData.Pitch), labelPitch },
+            { nameof(ForzaData.Yaw), labelYaw },
+            { nameof(ForzaData.AngularVelocityZ), labelAngularVelocityZ },
+            { nameof(ForzaData.AngularVelocityY), labelAngularVelocityY },
+            { nameof(ForzaData.AngularVelocityX), labelAngularVelocityX },
+            { nameof(ForzaData.VelocityZ), labelVelocityZ },
+            { nameof(ForzaData.VelocityY), labelVelocityY },
+            { nameof(ForzaData.VelocityX), labelVelocityX },
+            { nameof(ForzaData.NormalizedSuspensionTravelRR), labelNormalizedSuspensionTravelRR },
+            { nameof(ForzaData.NormalizedSuspensionTravelRL), labelNormalizedSuspensionTravelRL },
+            { nameof(ForzaData.NormalizedSuspensionTravelFR), labelNormalizedSuspensionTravelFR },
+            { nameof(ForzaData.NormalizedSuspensionTravelFL), labelNormalizedSuspensionTravelFL },
+            { nameof(ForzaData.AccelerationZ), labelAccelerationZ },
+            { nameof(ForzaData.AccelerationY), labelAccelerationY },
+            { nameof(ForzaData.AccelerationX), labelAccelerationX },
+            { nameof(ForzaData.CurrentEngineRpm), labelCurrentEngineRpm },
+            { nameof(ForzaData.EngineIdleRpm), labelEngineIdleRpm },
+            { nameof(ForzaData.EngineMaxRpm), labelEngineMaxRpm },
+            { nameof(ForzaData.IsRaceOn), labelIsRaceOn },
+            { nameof(ForzaData.TimeStampMS), labelTimeStampMS },
+            { nameof(ForzaData.Steer), labelSteer },
+            { nameof(ForzaData.Gear), labelGear },
+            { nameof(ForzaData.Handbrake), labelHandBrake },
+            { nameof(ForzaData.Clutch), labelClutch },
+            { nameof(ForzaData.Brake), labelBrake },
+            { nameof(ForzaData.Accelerator), labelAccel },
+            { nameof(ForzaData.RacePosition), labelRacePosition },
+            { nameof(ForzaData.LastLapTime), labelLastLap },
+            { nameof(ForzaData.LapNumber), labelLapNumber },
+            { nameof(ForzaData.CurrentRaceTime), labelCurrentRaceTime },
+            { nameof(ForzaData.CurrentLapTime), labelCurrentLap },
+            { nameof(ForzaData.BestLapTime), labelBestLap },
+            { nameof(ForzaData.TireTempRR), labelTireTempRR },
+            { nameof(ForzaData.TireTempRL), labelTireTempRL },
+            { nameof(ForzaData.TireTempFR), labelTireTempFR },
+            { nameof(ForzaData.TireTempFL), labelTireTempFL },
+            { nameof(ForzaData.Fuel), labelFuel },
+            { nameof(ForzaData.Distance), labelDistanceTraveled },
+            { nameof(ForzaData.Boost), labelBoost },
+            { nameof(ForzaData.SpeedKPH), labelSpeedKPH },
+            { nameof(ForzaData.SpeedMPH), labelSpeedMPH },
+            { nameof(ForzaData.Torque), labelTorque },
+            { nameof(ForzaData.Power), labelPower },
+            { nameof(ForzaData.PositionZ), labelPositionZ },
+            { nameof(ForzaData.PositionY), labelPositionY },
+            { nameof(ForzaData.PositionX), labelPositionX },
+            { nameof(ForzaData.NormalizedAiBrakeDifference), labelNormalizedAIBrakeDifference },
+            { nameof(ForzaData.NormalizedDrivingLine), labelNormalizedDrivingLine },
+            { nameof(ForzaData.TireWearRR), labelTireWearRR },
+            { nameof(ForzaData.TireWearRL), labelTireWearRL },
+            { nameof(ForzaData.TireWearFR), labelTireWearFR },
+            { nameof(ForzaData.TireWearFL), labelTireWearFL },
+            { nameof(ForzaData.TrackOrdinal), labelTrackOrdinal },
+        };
+
+        _uiTimer = new System.Windows.Forms.Timer();
+        _uiTimer.Interval = 16; // ~60Hz
+        _uiTimer.Tick += (s, e) => UpdateUI();
+        _uiTimer.Start();
     }
 
-    public bool Updating
+    public void QueueData(ForzaData data)
     {
-        get => _updating;
+        _latestData = data;
     }
 
-    public void UpdateData(ForzaData data)
+    public void SetBroadcastService(BroadcastService broadcastService)
     {
+        _broadcastService = broadcastService;
+    }
+
+    private void UpdateUI()
+    {
+        if (_broadcastService != null)
+        {
+            var packet = _broadcastService.GetLatestPacket();
+            if (packet != null)
+            {
+                var parsedData = _broadcastService.ParseForza(packet); // Renamed 'data' to 'parsedData'
+                QueueData(parsedData);
+            }
+        }
+
+        if (_latestData == null) return;
+
+        var data = _latestData.Value;
+        _latestData = null; // Mark as consumed
+
+        if (_startTimestampMS == null && data.TimeStampMS > 0)
+            _startTimestampMS = data.TimeStampMS;
+
+        groupBoxSledData.SuspendLayout();
+        groupBoxDashData.SuspendLayout();
+
         try
         {
-            _updating = true;
-            labelDrivetrainType.Text = data.DrivetrainType.ToString() ?? "--";
-            labelNumCylinders.Text = data.NumCylinders.ToString() ?? "--";
-            labelClassAndIndex.Text = data.CarClass.ToString() ?? "--";
-            labelCarOrdinal.Text = data.CarOrdinal.ToString() ?? "--";
-            labelSuspensionTravelMetersRR.Text = data.SuspensionTravelMetersRR.ToString() ?? "--";
-            labelSuspensionTravelMetersRL.Text = data.SuspensionTravelMetersRL.ToString() ?? "--";
-            labelSuspensionTravelMetersFR.Text = data.SuspensionTravelMetersFR.ToString() ?? "--";
-            labelSuspensionTravelMetersFL.Text = data.SuspensionTravelMetersFL.ToString() ?? "--";
-            labelTireCombinedSlipRR.Text = data.TireCombinedSlipRR.ToString() ?? "--";
-            labelTireCombinedSlipRL.Text = data.TireCombinedSlipRL.ToString() ?? "--";
-            labelTireCombinedSlipFR.Text = data.TireCombinedSlipFR.ToString() ?? "--";
-            labelTireCombinedSlipFL.Text = data.TireCombinedSlipFL.ToString() ?? "--";
-            labelTireSlipAngleRR.Text = data.TireSlipAngleRR.ToString() ?? "--";
-            labelTireSlipAngleRL.Text = data.TireSlipAngleRL.ToString() ?? "--";
-            labelTireSlipAngleFR.Text = data.TireSlipAngleFR.ToString() ?? "--";
-            labelTireSlipAngleFL.Text = data.TireSlipAngleFL.ToString() ?? "--";
-            labelSurfaceRumbleRR.Text = data.SurfaceRumbleRR.ToString() ?? "--";
-            labelSurfaceRumbleRL.Text = data.SurfaceRumbleRL.ToString() ?? "--";
-            labelSurfaceRumbleFR.Text = data.SurfaceRumbleFR.ToString() ?? "--";
-            labelSurfaceRumbleFL.Text = data.SurfaceRumbleFL.ToString() ?? "--";
-            labelWheelInPuddleDepthRR.Text = data.WheelInPuddleDepthRR.ToString() ?? "--";
-            labelWheelInPuddleDepthRL.Text = data.WheelInPuddleDepthRL.ToString() ?? "--";
-            labelWheelInPuddleDepthFR.Text = data.WheelInPuddleDepthFR.ToString() ?? "--";
-            labelWheelInPuddleDepthFL.Text = data.WheelInPuddleDepthFL.ToString() ?? "--";
-            labelWheelOnRumbleStripRR.Text = data.WheelOnRumbleStripRR.ToString() ?? "--";
-            labelWheelOnRumbleStripRL.Text = data.WheelOnRumbleStripRL.ToString() ?? "--";
-            labelWheelOnRumbleStripFR.Text = data.WheelOnRumbleStripFR.ToString() ?? "--";
-            labelWheelOnRumbleStripFL.Text = data.WheelOnRumbleStripFL.ToString() ?? "--";
-            labelWheelRotationSpeedRR.Text = data.WheelRotationSpeedRR.ToString() ?? "--";
-            labelWheelRotationSpeedRL.Text = data.WheelRotationSpeedRL.ToString() ?? "--";
-            labelWheelRotationSpeedFR.Text = data.WheelRotationSpeedFR.ToString() ?? "--";
-            labelWheelRotationSpeedFL.Text = data.WheelRotationSpeedFL.ToString() ?? "--";
-            labelTireSlipRatioRR.Text = data.TireSlipRatioRR.ToString() ?? "--";
-            labelTireSlipRatioRL.Text = data.TireSlipRatioRL.ToString() ?? "--";
-            labelTireSlipRatioFR.Text = data.TireSlipRatioFR.ToString() ?? "--";
-            labelTireSlipRatioFL.Text = data.TireSlipRatioFL.ToString() ?? "--";
-            labelRoll.Text = data.Roll.ToString() ?? "--";
-            labelPitch.Text = data.Pitch.ToString() ?? "--";
-            labelYaw.Text = data.Yaw.ToString() ?? "--";
-            labelAngularVelocityZ.Text = data.AngularVelocityZ.ToString() ?? "--";
-            labelAngularVelocityY.Text = data.AngularVelocityY.ToString() ?? "--";
-            labelAngularVelocityX.Text = data.AngularVelocityX.ToString() ?? "--";
-            labelVelocityZ.Text = data.VelocityZ.ToString() ?? "--";
-            labelVelocityY.Text = data.VelocityY.ToString() ?? "--";
-            labelVelocityX.Text = data.VelocityX.ToString() ?? "--";
-            labelNormalizedSuspensionTravelRR.Text = data.NormalizedSuspensionTravelRR.ToString() ?? "--";
-            labelNormalizedSuspensionTravelRL.Text = data.NormalizedSuspensionTravelRL.ToString() ?? "--";
-            labelNormalizedSuspensionTravelFR.Text = data.NormalizedSuspensionTravelFR.ToString() ?? "--";
-            labelNormalizedSuspensionTravelFL.Text = data.NormalizedSuspensionTravelFL.ToString() ?? "--";
-            labelAccelerationZ.Text = data.AccelerationZ.ToString() ?? "--";
-            labelAccelerationY.Text = data.AccelerationY.ToString() ?? "--";
-            labelAccelerationX.Text = data.AccelerationX.ToString() ?? "--";
-            labelCurrentEngineRpm.Text = data.CurrentEngineRpm.ToString() ?? "--";
-            labelEngineIdleRpm.Text = data.EngineIdleRpm.ToString() ?? "--";
-            labelEngineMaxRpm.Text = data.EngineMaxRpm.ToString() ?? "--";
-            labelIsRaceOn.Text = data.IsRaceOn.ToString() ?? "--";
-            labelTimeStampMS.Text = data.TimestampMS.ToString() ?? "--";
-            labelSteer.Text = data.Steer.ToString() ?? "--";
-            labelGear.Text = data.Gear.ToString() ?? "--";
-            labelHandBrake.Text = data.Handbrake.ToString() ?? "--";
-            labelClutch.Text = data.Clutch.ToString() ?? "--";
-            labelBrake.Text = data.Brake.ToString() ?? "--";
-            labelAccel.Text = data.Accelerator.ToString() ?? "--";
-            labelRacePosition.Text = data.RacePosition.ToString() ?? "--";
-            labelLastLap.Text = data.LastLapTime.ToString() ?? "--";
-            labelLapNumber.Text = data.LapNumber.ToString() ?? "--";
-            labelCurrentRaceTime.Text = data.CurrentRaceTime.ToString() ?? "--";
-            labelCurrentLap.Text = data.CurrentLapTime.ToString() ?? "--";
-            labelBestLap.Text = data.BestLapTime.ToString() ?? "--";
-            labelTireTempRR.Text = data.TireTempRR.ToString() ?? "--";
-            labelTireTempRL.Text = data.TireTempRL.ToString() ?? "--";
-            labelTireTempFR.Text = data.TireTempFR.ToString() ?? "--";
-            labelTireTempFL.Text = data.TireTempFL.ToString() ?? "--";
-            labelFuel.Text = data.Fuel.ToString() ?? "--";
-            labelDistanceTraveled.Text = data.Distance.ToString() ?? "--";
-            labelBoost.Text = data.Boost.ToString() ?? "--";
-            labelSpeedKPH.Text = data.SpeedKPH.ToString() ?? "--";
-            labelSpeedMPH.Text = data.SpeedMPH.ToString() ?? "--";
-            labelTorque.Text = data.Torque.ToString() ?? "--";
-            labelPower.Text = data.Power.ToString() ?? "--";
-            labelPositionZ.Text = data.PositionZ.ToString() ?? "--";
-            labelPositionY.Text = data.PositionY.ToString() ?? "--";
-            labelPositionX.Text = data.PositionX.ToString() ?? "--";
-            labelNormalizedAIBrakeDifference.Text = data.NormalizedAiBrakeDifference.ToString() ?? "--";
-            labelNormalizedDrivingLine.Text = data.NormalizedDrivingLine.ToString() ?? "--";
-            labelTireWearRR.Text = data.TireWearRR.ToString() ?? "--";
-            labelTireWearRL.Text = data.TireWearRL.ToString() ?? "--";
-            labelTireWearFR.Text = data.TireWearFR.ToString() ?? "--";
-            labelTireWearFL.Text = data.TireWearFL.ToString() ?? "--";
-            labelTrackOrdinal.Text = data.TrackOrdinal.ToString() ?? "--";
+            foreach (var kvp in _labelMap)
+            {
+                var prop = typeof(ForzaData).GetProperty(kvp.Key);
+                if (prop != null)
+                {
+                    var value = prop.GetValue(data);
+                    string text = value is float f ? MathF.Round(f, 2).ToString() : value?.ToString() ?? "";
+
+                    if (kvp.Key == nameof(ForzaData.TimeStampMS) && _startTimestampMS != null)
+                    {
+                        var elapsedMs = data.TimeStampMS - _startTimestampMS.Value;
+                        var elapsed = TimeSpan.FromMilliseconds(elapsedMs);
+                        text = $"{(int)elapsed.Minutes:D2}:{elapsed.Seconds:D2}:{elapsed.Milliseconds:D2}";
+                    }
+
+                    if (kvp.Value.Text != text)
+                        kvp.Value.Text = text;
+                }
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"UpdateData: {ex.Message}");
+            Console.WriteLine($"UpdateUI: {ex.Message}");
         }
         finally
         {
-            _updating = false;
+            groupBoxSledData.ResumeLayout();
+            groupBoxDashData.ResumeLayout();
         }
     }
 }

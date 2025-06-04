@@ -3,76 +3,89 @@ using SimDynoServer.Models;
 using SimDynoServer.Utils;
 using System.Net;
 using System.Net.Sockets;
+using System.Diagnostics;
 
 namespace SimDynoDataRecorder.Services;
 public class BroadcastService
 {
-    readonly UdpClient _udpClient;
-    readonly IPEndPoint _endPoint;
-    CancellationTokenSource? _cts;
-    volatile bool _broadcasting = false;
+    private UdpClient? _udpClient;
+    private IPEndPoint? _endPoint;
+    private string _ipAddress;
+    private string _port;
+    private List<byte[]>? _packets;
+    private int _packetIndex;
+    private System.Timers.Timer? _timer;
+    private byte[]? _latestPacket;
+    private CancellationTokenSource? _cts;
 
     public BroadcastService(string ipAddress, string port)
     {
-        _udpClient = new UdpClient();
-        _endPoint = new IPEndPoint(IPAddress.Parse(ipAddress), int.Parse(port));
+        _ipAddress = ipAddress;
+        _port = port;
     }
 
     public async Task StartBroadcasting(List<byte[]> packets, TelemetryDataView? telemetryDataView)
     {
-        if (_broadcasting) return;
-
-        _broadcasting = true;
+        _endPoint = new IPEndPoint(IPAddress.Parse(_ipAddress), int.Parse(_port));
+        _udpClient = new UdpClient();
         _cts = new CancellationTokenSource();
-        var token = _cts.Token;
-        const int interval = 1000 / 60; // 60Hz
+
+        const double targetIntervalMs = 1000.0 / 60.0; // 16.666... ms for 60Hz
+        var sw = Stopwatch.StartNew();
+        long freq = Stopwatch.Frequency;
+        double msPerTick = 1000.0 / freq;
+        long baseTicks = Stopwatch.GetTimestamp();
 
         try
         {
-            Console.WriteLine($"Starting Broadcast.");
-
-            foreach (var packet in packets)
+            for (int i = 0; i < packets.Count; i++)
             {
-                if (token.IsCancellationRequested)
+                if (_cts.Token.IsCancellationRequested)
                     break;
 
-                try
+                await _udpClient.SendAsync(packets[i], packets[i].Length, _endPoint);
+                _latestPacket = packets[i];
+
+                long targetTicks = baseTicks + (long)((i + 1) * targetIntervalMs / msPerTick);
+                long nowTicks = Stopwatch.GetTimestamp();
+                long ticksToWait = targetTicks - nowTicks;
+
+                if (ticksToWait > 0)
                 {
-                    await _udpClient.SendAsync(packet, packet.Length, _endPoint);
-                    var parsedData = ParseForza(packet);
-                    telemetryDataView?.Invoke(() => telemetryDataView?.UpdateData(parsedData));
-                    await Task.Delay(interval);
-                }
-                catch (OperationCanceledException)
-                {
-                    Console.WriteLine("Broadcasting operation canceled.");
-                    break;
-                }
-                catch (SocketException ex)
-                {
-                    Console.WriteLine($"Issue sending packet: {packet}\n{ex.Message}");
+                    int ms = (int)(ticksToWait * msPerTick);
+                    if (ms > 2)
+                        await Task.Delay(ms - 1, _cts.Token);
+
+                    // Spin-wait for the remaining time
+                    while (Stopwatch.GetTimestamp() < targetTicks)
+                    {
+                        Thread.SpinWait(1);
+                    }
                 }
             }
-
-            Console.WriteLine("Broadcast finished.");
+        }
+        catch (ObjectDisposedException)
+        {
+            // Ignore, occurs if stopped during send
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Broadcasting error: {ex.Message}");
+            Console.WriteLine($"Broadcast error: {ex.Message}");
         }
         finally
         {
-            Console.WriteLine("Broadcasting Stopped.");
-            _udpClient.Dispose();
+            _udpClient?.Dispose();
+            _udpClient = null;
+            _cts?.Dispose();
+            _cts = null;
         }
     }
 
     public void StopBroadcasting()
     {
-        if (!_broadcasting) return;
-        Console.WriteLine("Stopping Broadcast.");
         _cts?.Cancel();
-        _broadcasting = false;
+        _udpClient?.Dispose();
+        _udpClient = null;
     }
 
     public ForzaData ParseForza(byte[] packet)
@@ -81,7 +94,7 @@ public class BroadcastService
 
         // Sled
         data.IsRaceOn = packet.IsRaceOn();
-        data.TimestampMS = packet.TimestampMs();
+        data.TimeStampMS = packet.TimestampMs();
         data.EngineMaxRpm = packet.EngineMaxRpm();
         data.EngineIdleRpm = packet.EngineIdleRpm();
         data.CurrentEngineRpm = packet.CurrentEngineRpm();
@@ -179,4 +192,7 @@ public class BroadcastService
 
         return data;
     }
+
+    // Add a method to get the latest packet
+    public byte[]? GetLatestPacket() => _latestPacket;
 }

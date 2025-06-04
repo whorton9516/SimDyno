@@ -9,7 +9,7 @@ public class SimDynoHub : Hub
 {
     public SimDynoHub()
     {
-        Console.WriteLine("SimDynoHub instance created.");
+        // Console.WriteLine("SimDynoHub instance created.");
     }
 
     public override async Task OnConnectedAsync()

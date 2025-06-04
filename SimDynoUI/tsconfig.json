@@ -13,7 +13,7 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["app/src/*"]
-    },
+    }
   },
   "include": ["app/**/*.ts", "app/**/*.tsx", "app/**/*.d.tsx", "scripts/global.d.ts"],
   "exclude": [
@@ -22,7 +22,7 @@
       "dist",
       "out",
       "app/src/highlighter",
-       "app/src/main/preload.ts"
+      "app/src/main/preload.ts"
     ],
     "compileOnSave": false
 }

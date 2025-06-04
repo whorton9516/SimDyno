@@ -15,14 +15,13 @@ const SignalRContext = createContext<SignalRContextType>({
 });
 
 export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const serviceRef = useRef<SignalRService | null>(null);
   const [telemetry, setTelemetry] = useState<Telemetry>(defaultTelemetry);
   const [status, setStatus] = useState('Waiting on server...');
   const [message, setMessage] = useState('');
+  const initialTimeStampMS = useRef<number | null>(null);
 
   useEffect(() => {
     const service = new SignalRService('http://localhost:5000/simdynohub');
-    serviceRef.current = service;
 
     const startConnection = async () => {
       try {
@@ -38,7 +37,16 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // Register event handlers
     service.onTelemetry((partialData: Partial<Telemetry>) => {
       try {
-        setTelemetry((prev) => ({ ...prev, ...partialData }));
+        if (typeof partialData.timeStampMS === 'number' &&
+            initialTimeStampMS.current === null) {
+          initialTimeStampMS.current = partialData.timeStampMS;
+        }
+
+        if (typeof partialData.timeStampMS === 'number' &&
+            initialTimeStampMS.current !== null) {
+          partialData.timeStampMS = partialData.timeStampMS - initialTimeStampMS.current;
+        }
+        setTelemetry((prev) => ({ ...prev, ...updateTelemetry(partialData) }));
       } catch (error) {
         console.error('Error processing telemetry:', error);
       }

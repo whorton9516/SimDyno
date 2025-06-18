@@ -133,7 +133,7 @@ public partial class TelemetryDataView : Form
             var packet = _broadcastService.GetLatestPacket();
             if (packet != null)
             {
-                var parsedData = _broadcastService.ParseForza(packet); // Renamed 'data' to 'parsedData'
+                var parsedData = _broadcastService.ParseForza(packet); 
                 QueueData(parsedData);
             }
         }

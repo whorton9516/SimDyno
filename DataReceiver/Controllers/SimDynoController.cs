@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SimDynoServer.Services;
+using SimDynoServer.Utils;
 
 namespace SimDynoServer.Controllers;
 
@@ -25,7 +26,7 @@ public class SimDynoController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"There was an issue starting the listener: {ex.Message}");
+            ex.LogException("There was an issue starting the listener");
             return BadRequest("Failed to start the listener.");
         }
     }
@@ -40,7 +41,7 @@ public class SimDynoController : ControllerBase
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"There was an issue stopping the listener: {ex.Message}");
+            ex.LogException("There was an issue stopping the listener");
             return BadRequest("Failed to stop the listener.");
         }
     }

@@ -4,6 +4,8 @@ using SimDynoDataRecorder.Views;
 using SimDynoServer.Models;
 using System.Net;
 using System.ComponentModel;
+using SimDynoServer.Utils;
+using Microsoft.VisualBasic.Logging;
 
 namespace SimDynoDataRecorder;
 
@@ -94,7 +96,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error when _updating the AppState: {ex.Message}");
+            ex.LogException("Error when updating the AppState");
         }
     }
 
@@ -127,7 +129,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ran into an issue when starting the Listener: {ex.Message}");
+            ex.LogException("Ran into an issue when starting the Listener");
             StopListening();
         }
     }
@@ -142,7 +144,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ran into an issue when stoping the Listener: {ex.Message}");
+            ex.LogException("Ran into an issue when stoping the Listener");
             Close();
         }
     }
@@ -160,7 +162,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ran into an issue when starting the Broadcast: {ex.Message}");
+            ex.LogException("Ran into an issue when starting the Broadcast");
             StopBroadcasting();
         }
     }
@@ -175,7 +177,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ran Into an issue when stopping the broadcast: {ex.Message}");
+            ex.LogException("Ran Into an issue when stopping the broadcast");
             Close();
         }
     }
@@ -190,7 +192,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ran Into an issue when starting the Recording: {ex.Message}");
+            ex.LogException("Ran Into an issue when starting the Recording");
         }
     }
 
@@ -207,7 +209,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Ran into an issue when stopping the Recording: {ex.Message}");
+            ex.LogException("Ran into an issue when stopping the Recording");
             Close();
         }
     }
@@ -327,13 +329,9 @@ public partial class MainForm : Form
                 }
             }
         }
-        catch (IOException ex)
-        {
-            Console.WriteLine($"Error when accessing file: {filename}\n{ex.Message}");
-        }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            ex.LogException("Error when accessing file");
         }
 
         return packets;
@@ -375,22 +373,5 @@ public partial class MainForm : Form
     private void UpdateState(AppState state)
     {
         State = state;
-    }
-
-    bool IsValidBase64(string str)
-    {
-        if (string.IsNullOrWhiteSpace(str))
-            return false;
-
-        if (str.Length % 4 != 0)
-            return false;
-
-        return str.All(c => char.IsLetterOrDigit(c) || c == '+' || c == '/' || c == '=');
-    }
-
-    string SanitizeString(string str)
-    {
-        var sanitizedString = str.Replace("\"", "").Replace(",", "").Replace("[", "").Replace("]", "").Trim();
-        return sanitizedString;
     }
 }

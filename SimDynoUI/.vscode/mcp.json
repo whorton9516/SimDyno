@@ -1,0 +1,13 @@
+{
+  "servers": {
+    "my-mcp-server-0001e0f5": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "crawl-chat-mcp",
+        "--id=67d221efb4b9de65095a2579",
+        "--name=konva_documentation"
+      ]
+    }
+  }
+}

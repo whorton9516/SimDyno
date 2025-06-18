@@ -1,28 +1,25 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
-    "rootDir": "./app/src",
     "target": "ES6",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "jsx": "react-jsx",
-    "lib": ["dom", "ESNext"],
-    "strict": true,
-    "esModuleInterop": true,
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
     "skipLibCheck": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["app/src/*"]
+      "@/*": ["src/*"]
     }
   },
-  "include": ["app/**/*.ts", "app/**/*.tsx", "app/**/*.d.tsx", "scripts/global.d.ts"],
-  "exclude": [
-      "node_modules",
-      "app/node_modules",
-      "dist",
-      "out",
-      "app/src/highlighter",
-      "app/src/main/preload.ts"
-    ],
-    "compileOnSave": false
+  "include": ["src", "electron"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using SimDynoDataRecorder.Services;
-using SimDynoDataRecorder.Views;
 using System.Runtime.InteropServices;
 
 namespace SimDynoDataRecorder;

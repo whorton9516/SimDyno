@@ -1,8 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
-using SimDynoDataRecorder.Services;
+using SimDynoDevSuite.Services;
+using SimDynoServer.Utils;
 using System.Runtime.InteropServices;
 
-namespace SimDynoDataRecorder;
+namespace SimDynoDevSuite;
 
 internal static class Program
 {

@@ -2,7 +2,7 @@ import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 import { Telemetry, updateTelemetry } from '../type/Telemetry';
 
 export class SignalRService {
-  private connection: HubConnection;
+  private readonly connection: HubConnection;
 
   constructor(url: string) {
     this.connection = new HubConnectionBuilder()
@@ -34,6 +34,7 @@ export class SignalRService {
 
   onMessage(callback: (message: string) => void): void {
     this.connection.on('BroadcastMessage', (msg: string) => {
+      console.log('Received message:', msg);
       callback(msg);
     });
   }
@@ -52,5 +53,14 @@ export class SignalRService {
 
   async stop(): Promise<void> {
     await this.connection.stop();
+  }
+
+  async confirmReceipt(packetID: number): Promise<void> {
+    try{
+      await this.connection.invoke('ConfirmReceipt', packetID);
+    }
+    catch (err) {
+      console.error('Error confirming receipt:', err);
+    }
   }
 }

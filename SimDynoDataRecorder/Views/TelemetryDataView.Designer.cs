@@ -1,4 +1,4 @@
-﻿namespace SimDynoDataRecorder.Views;
+﻿namespace SimDynoDevSuite.Views;
 
 partial class TelemetryDataView
 {

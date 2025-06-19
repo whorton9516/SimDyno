@@ -1,6 +1,6 @@
 ﻿using SimDynoServer.Utils;
 
-namespace SimDynoDataRecorder.Services;
+namespace SimDynoDevSuite.Services;
 public class RecordingService
 {
     string _baseDir = AppContext.BaseDirectory;

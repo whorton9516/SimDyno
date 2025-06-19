@@ -12,4 +12,7 @@ public static class SignalRHelper
         foreach(var field in fields)
             _requestedFields.Add(field);
     }
+
+    public static bool HasRequestedFields() => _requestedFields.Count > 0;
+    public static IEnumerable<string> GetRequestedFields() => _requestedFields;
 }

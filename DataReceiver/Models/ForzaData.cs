@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace SimDynoServer.Models;
 
-public struct ForzaData
+public class ForzaData
 {
 
     private bool  _isRaceOn;

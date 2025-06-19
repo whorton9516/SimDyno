@@ -1,7 +1,7 @@
-﻿using SimDynoDataRecorder.Services;
+﻿using SimDynoDevSuite.Services;
 using SimDynoServer.Models;
 
-namespace SimDynoDataRecorder.Views;
+namespace SimDynoDevSuite.Views;
 public partial class TelemetryDataView : Form
 {
     private ForzaData? _latestData;
@@ -140,7 +140,7 @@ public partial class TelemetryDataView : Form
 
         if (_latestData == null) return;
 
-        var data = _latestData.Value;
+        var data = _latestData;
         _latestData = null; // Mark as consumed
 
         if (_startTimestampMS == null && data.TimeStampMS > 0)

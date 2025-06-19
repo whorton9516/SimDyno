@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using SimDynoServer.Services;
 using SimDynoServer.Utils;
+using SimDynoServer.Models;
 
 namespace SimDynoServer.Controllers;
 
@@ -21,7 +22,6 @@ public class SimDynoController : ControllerBase
         try
         {
             Task.Run(() => _receiverService.ListenAsync());
-
             return Ok("Listener started.");
         }
         catch (Exception ex)

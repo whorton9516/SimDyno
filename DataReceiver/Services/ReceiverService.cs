@@ -5,6 +5,7 @@ using SimDynoServer.Models;
 using System.Net;
 using System.Net.Sockets;
 using SimDynoServer.Utils;
+using SimDynoServer.Configs;
 
 namespace SimDynoServer.Services;
 
@@ -12,17 +13,33 @@ public class ReceiverService
 {
     public Socket? Listener { get; set; }
     readonly IHubContext<SimDynoHub> _hubContext;
+    readonly LoggingUtil _loggingUtil;
 
     const string IpAddress = "127.0.0.1";
     const int Port = 5555;
 
     bool _gameConnected = false;
-    private bool _isListening = false;
-    private readonly object _lock = new();
+    bool _isListening = false;
+    readonly object _lock = new();
 
-    public ReceiverService(IHubContext<SimDynoHub> hubContext)
+    readonly ParserConfig _parserConfig;
+
+    // Fields for tracking average parse time and outliers
+    double _parseTimeSum = 0;
+    double _roundTripSum = 0;
+    int _serverLoadSum = 0;
+    int _parseCount = 0;
+    int _outlierCount = 0;
+    const int LogInterval = 6; // Log every 6 packets (10fps at 60Hz)
+    const double MaxBudgetMs = 16.67;
+    const int ConfirmationTimeoutMs = 16;
+
+    public ReceiverService(IHubContext<SimDynoHub> hubContext, LoggingUtil loggingUtil)
     {
         _hubContext = hubContext;
+        _parserConfig = SimDynoHub.GetParserConfig();
+        _loggingUtil = loggingUtil;
+        _loggingUtil.SetServerStatus(ServerStatus.Starting);
     }
 
     public async Task ListenAsync()
@@ -44,6 +61,7 @@ public class ReceiverService
             Listener = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             var endPoint = new IPEndPoint(IPAddress.Parse(IpAddress), Port);
             Listener.Bind(endPoint);
+            _loggingUtil.SetServerStatus(ServerStatus.Running);
 
             await BroadcastMessageToClients("Waiting for connection from the game...");
 
@@ -58,13 +76,55 @@ public class ReceiverService
                 {
                     if (!_gameConnected)
                     {
-                        _gameConnected = true;
+                        SetGameConnected(true);
                         await BroadcastMessageToClients("Game connected. Starting telemetry broadcast...");
                     }
 
-                    var parsedData = ParseForza(buffer);
+                    // Timing the parsing for performance metrics
+                    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-                    await _hubContext.Clients.All.SendAsync("ReceiveData", parsedData);
+                    var parsedData = ParseForza(buffer);
+                    long packetId = parsedData.TimeStampMS;
+                    var parseTimeMs = stopwatch.Elapsed.TotalMilliseconds;
+
+                    // Send data to client with packetId (timestampMS)
+                    Task.Run(() => _hubContext.Clients.All.SendAsync("ReceiveData", parsedData));
+
+                    // Track average parse time and log every LogInterval packets
+                    _parseTimeSum += parseTimeMs;
+                    _parseCount++;
+
+                    // Wait for confirmation or timeout (16ms)
+                    bool confirmed = await SimDynoHub.WaitForPacketConfirmationAsync(packetId, ConfirmationTimeoutMs);
+
+                    stopwatch.Stop();
+                    var elapsedTimeMs = stopwatch.Elapsed.TotalMilliseconds;
+                    _roundTripSum += elapsedTimeMs;
+                    int serverLoad = (int)Math.Round(elapsedTimeMs / MaxBudgetMs * 100);
+                    _serverLoadSum += serverLoad;
+
+                    // Outlier tracking
+                    if (!confirmed || elapsedTimeMs > MaxBudgetMs)
+                        _outlierCount++;
+
+                    if (_parseCount == LogInterval)
+                    {
+                        var avgParseTime = _parseTimeSum / LogInterval;
+                        var avgServerLoad = _serverLoadSum / LogInterval;
+                        var avgRoundTripTime = _roundTripSum / LogInterval;
+                        Task.Run(() =>
+                        {
+                            _loggingUtil.SetAvgParseTime(avgParseTime, false);
+                            _loggingUtil.SetOutlierCount(_outlierCount, false);
+                            _loggingUtil.SetServerLoad(avgServerLoad, false);
+                            _loggingUtil.SetAvgRoundTripTime(avgRoundTripTime);
+                        });
+                        _parseTimeSum = 0;
+                        _serverLoadSum = 0;
+                        _parseCount = 0;
+                        _outlierCount = 0;
+                        _roundTripSum = 0;
+                    }
                 }
             }
         }
@@ -82,8 +142,8 @@ public class ReceiverService
             {
                 _isListening = false;
             }
-            Console.WriteLine("Closing the Listener");
-            Listener?.Close();
+            _loggingUtil.SetServerStatus(ServerStatus.Closing);
+            StopListening();
             Listener = null;
         }
     }
@@ -91,112 +151,18 @@ public class ReceiverService
     public ForzaData ParseForza(byte[] packet)
     {
         var data = new ForzaData();
-
         try
         {
-            // Sled
-            data.IsRaceOn = packet.IsRaceOn();
-            data.TimeStampMS = packet.TimestampMs();
-            data.EngineMaxRpm = packet.EngineMaxRpm();
-            data.EngineIdleRpm = packet.EngineIdleRpm();
-            data.CurrentEngineRpm = packet.CurrentEngineRpm();
-            data.AccelerationX = packet.AccelerationX();
-            data.AccelerationY = packet.AccelerationY();
-            data.AccelerationZ = packet.AccelerationZ();
-            data.VelocityX = packet.VelocityX();
-            data.VelocityY = packet.VelocityY();
-            data.VelocityZ = packet.VelocityZ();
-            data.AngularVelocityX = packet.AngularVelocityX();
-            data.AngularVelocityY = packet.AngularVelocityY();
-            data.AngularVelocityZ = packet.AngularVelocityZ();
-            data.Yaw = packet.Yaw();
-            data.Pitch = packet.Pitch();
-            data.Roll = packet.Roll();
-            data.NormalizedSuspensionTravelFL = packet.NormalizedSuspensionTravelFL();
-            data.NormalizedSuspensionTravelFR = packet.NormalizedSuspensionTravelFR();
-            data.NormalizedSuspensionTravelRL = packet.NormalizedSuspensionTravelRL();
-            data.NormalizedSuspensionTravelRR = packet.NormalizedSuspensionTravelRR();
-            data.TireSlipRatioFL = packet.TireSlipRatioFL();
-            data.TireSlipRatioFR = packet.TireSlipRatioFR();
-            data.TireSlipRatioRL = packet.TireSlipRatioRL();
-            data.TireSlipRatioRR = packet.TireSlipRatioRR();
-            data.WheelRotationSpeedFL = packet.WheelRotationSpeedFL();
-            data.WheelRotationSpeedFR = packet.WheelRotationSpeedFR();
-            data.WheelRotationSpeedRL = packet.WheelRotationSpeedRL();
-            data.WheelRotationSpeedRR = packet.WheelRotationSpeedRR();
-            data.WheelOnRumbleStripFL = packet.WheelOnRumbleStripFL();
-            data.WheelOnRumbleStripFR = packet.WheelOnRumbleStripFR();
-            data.WheelOnRumbleStripRL = packet.WheelOnRumbleStripRL();
-            data.WheelOnRumbleStripRR = packet.WheelOnRumbleStripRR();
-            data.WheelInPuddleDepthFL = packet.WheelInPuddleFL();
-            data.WheelInPuddleDepthFR = packet.WheelInPuddleFR();
-            data.WheelInPuddleDepthRL = packet.WheelInPuddleRL();
-            data.WheelInPuddleDepthRR = packet.WheelInPuddleRR();
-            data.SurfaceRumbleFL = packet.SurfaceRumbleFL();
-            data.SurfaceRumbleFR = packet.SurfaceRumbleFR();
-            data.SurfaceRumbleRL = packet.SurfaceRumbleRL();
-            data.SurfaceRumbleRR = packet.SurfaceRumbleRR();
-            data.TireSlipAngleFL = packet.TireSlipAngleFL();
-            data.TireSlipAngleFR = packet.TireSlipAngleFR();
-            data.TireSlipAngleRL = packet.TireSlipAngleRL();
-            data.TireSlipAngleRR = packet.TireSlipAngleRR();
-            data.TireCombinedSlipFL = packet.TireCombinedSlipFL();
-            data.TireCombinedSlipFR = packet.TireCombinedSlipFR();
-            data.TireCombinedSlipRL = packet.TireCombinedSlipRL();
-            data.TireCombinedSlipRR = packet.TireCombinedSlipRR();
-            data.SuspensionTravelMetersFL = packet.SuspensionTravelMetersFL();
-            data.SuspensionTravelMetersFR = packet.SuspensionTravelMetersFR();
-            data.SuspensionTravelMetersRL = packet.SuspensionTravelMetersRL();
-            data.SuspensionTravelMetersRR = packet.SuspensionTravelMetersRR();
-            data.CarOrdinal = packet.CarOrdinal();
-            data.CarClass = packet.CarClass();
-            data.CarPerformanceIndex = packet.CarPerformanceIndex();
-            data.DrivetrainType = packet.DriveTrain();
-            data.NumCylinders = packet.NumCylinders();
-
-            // Dash
-            data.PositionX = packet.PositionX();
-            data.PositionY = packet.PositionY();
-            data.PositionZ = packet.PositionZ();
-            data.Speed = packet.Speed();
-            data.Power = packet.Power();
-            data.Torque = packet.Torque();
-            data.TireTempFL = packet.TireTempFL();
-            data.TireTempFR = packet.TireTempFR();
-            data.TireTempRL = packet.TireTempRL();
-            data.TireTempRR = packet.TireTempRR();
-            data.Boost = packet.Boost();
-            data.Fuel = packet.Fuel();
-            data.Distance = packet.Distance();
-            data.BestLapTime = packet.BestLapTime();
-            data.LastLapTime = packet.LastLapTime();
-            data.CurrentLapTime = packet.CurrentLapTime();
-            data.CurrentRaceTime = packet.CurrentRaceTime();
-            data.LapNumber = packet.LapNumber();
-            data.RacePosition = packet.RacePosition();
-            data.Accelerator = packet.Accelerator();
-            data.Brake = packet.Brake();
-            data.Clutch = packet.Clutch();
-            data.Handbrake = packet.Handbrake();
-            data.Gear = packet.Gear();
-            data.Steer = packet.Steer();
-            data.NormalizedDrivingLine = packet.NormalizedDrivingLine();
-            data.NormalizedAiBrakeDifference = packet.NormalizedAiBrakeDifference();
-            data.TireWearFL = packet.TireWearFL();
-            data.TireWearFR = packet.TireWearFR();
-            data.TireWearRL = packet.TireWearRL();
-            data.TireWearRR = packet.TireWearRR();
-            data.TrackOrdinal = packet.TrackOrdinal();
-
-            // QOL
-            data.SpeedMPH = MathF.Round(packet.Speed() * 2.23694f);
-            data.SpeedKPH = MathF.Round(packet.Speed() * 3.6f);
+            // Use only enabled parsers
+            foreach (var parser in _parserConfig.EnabledParsers)
+            {
+                parser(packet, data);
+            }
         }
         catch (Exception ex)
         {
             ex.LogException("There was an issue parsing the data");
         }
-
         return data;
     }
 
@@ -204,7 +170,6 @@ public class ReceiverService
     {
         try
         {
-            Console.WriteLine(message);
             await _hubContext.Clients.All.SendAsync("BroadcastMessage", message);
         }
         catch (Exception ex)
@@ -226,7 +191,7 @@ public class ReceiverService
         {
             Listener?.Dispose();
             Listener = null;
-            _gameConnected = false;
+            SetGameConnected(false);
             Console.WriteLine("Receiver service stopped.");
             return true;
         }
@@ -234,6 +199,19 @@ public class ReceiverService
         {
             ex.LogException("Failed to stop the Listener");
             return false;
+        }
+        finally
+        {
+            _loggingUtil.SetServerStatus(ServerStatus.Inactive);
+        }
+    }
+
+    public void SetGameConnected(bool connected)
+    {
+        lock (_lock)
+        {
+            _gameConnected = connected;
+            _loggingUtil.SetGameStatus(connected ? GameStatus.Connected : GameStatus.Disconnected);
         }
     }
 }

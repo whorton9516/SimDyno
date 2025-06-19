@@ -21,11 +21,11 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const initialTimeStampMS = useRef<number | null>(null);
 
   useEffect(() => {
-    const service = new SignalRService('http://localhost:5000/simdynohub');
+    const service = new SignalRService('https://localhost:5001/simdynohub');
 
     const startConnection = async () => {
       try {
-        await service.start(); // Rely on SignalRService to handle state
+        await service.start()
         setStatus('Connected to server');
       } catch (err) {
         console.log('SignalR connection failed: ', err);
@@ -36,19 +36,30 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // Register event handlers
     service.onTelemetry((partialData: Partial<Telemetry>) => {
+      let packetID: number | undefined = undefined;
       try {
         if (typeof partialData.timeStampMS === 'number' &&
             initialTimeStampMS.current === null) {
           initialTimeStampMS.current = partialData.timeStampMS;
         }
-
+        console.log('Received telemetry:', partialData);
         if (typeof partialData.timeStampMS === 'number' &&
             initialTimeStampMS.current !== null) {
+          packetID = partialData.timeStampMS;
           partialData.timeStampMS = partialData.timeStampMS - initialTimeStampMS.current;
         }
         setTelemetry((prev) => ({ ...prev, ...updateTelemetry(partialData) }));
+        // Confirm receipt to server if packetID is available
+        if (typeof packetID !== 'undefined') {
+          service.confirmReceipt(packetID).catch((err) => console.error('Error confirming receipt:', err));
+        }
+        else {
+          console.warn('Received telemetry without packetID, not confirming receipt.');
+        }
       } catch (error) {
         console.error('Error processing telemetry:', error);
+        // On error, respond with packetID -1
+        service.confirmReceipt(-1).catch((err) => console.error('Error confirming receipt with -1:', err));
       }
     });
 
@@ -87,8 +98,13 @@ export const SignalRProvider: React.FC<{ children: React.ReactNode }> = ({ child
     };
   }, []);
 
+  const contextValue = React.useMemo(
+    () => ({ telemetry, status, message }),
+    [telemetry, status, message]
+  );
+
   return (
-    <SignalRContext.Provider value={{ telemetry, status, message }}>
+    <SignalRContext.Provider value={contextValue}>
       {children}
     </SignalRContext.Provider>
   );

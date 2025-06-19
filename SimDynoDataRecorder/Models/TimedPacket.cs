@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SimDynoDataRecorder.Models;
+namespace SimDynoDevSuite.Models;
 public class TimedPacket
 {
     public long TimestampTicks { get; set; }

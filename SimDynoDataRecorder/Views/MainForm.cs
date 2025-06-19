@@ -1,13 +1,12 @@
-using SimDynoDataRecorder.Services;
-using SimDynoDataRecorder.Models;
-using SimDynoDataRecorder.Views;
+using SimDynoDevSuite.Services;
+using SimDynoDevSuite.Models;
+using SimDynoDevSuite.Views;
 using SimDynoServer.Models;
 using System.Net;
 using System.ComponentModel;
 using SimDynoServer.Utils;
-using Microsoft.VisualBasic.Logging;
 
-namespace SimDynoDataRecorder;
+namespace SimDynoDevSuite;
 
 public partial class MainForm : Form
 {
@@ -15,7 +14,7 @@ public partial class MainForm : Form
     readonly BroadcastService _broadcastService;
     AppState _state = AppState.Idle;
     bool _listening = false;
-    TelemetryDataView _telemetryDataView;
+    TelemetryDataView? _telemetryDataView;
     string _fileName = string.Empty;
     int _packetsReceived = 0;
     public event EventHandler<AppState>? StateChanged;
@@ -158,7 +157,7 @@ public partial class MainForm : Form
             _receiverService.Listener?.Dispose();
 
             var packets = GetPackets(_fileName);
-            Task.Run(() => _broadcastService.StartBroadcasting(packets, _telemetryDataView));
+            Task.Run(() => _broadcastService.StartBroadcasting(packets));
         }
         catch (Exception ex)
         {
@@ -279,7 +278,7 @@ public partial class MainForm : Form
             catch (Exception ex)
             {
                 Console.WriteLine($"Ran into an issue when _updating the TelemetryDataView: {ex.Message}");
-            } 
+            }
         }
     }
 

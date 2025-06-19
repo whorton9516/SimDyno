@@ -1,4 +1,4 @@
-﻿namespace SimDynoDataRecorder;
+﻿namespace SimDynoDevSuite;
 
 partial class MainForm
 {
@@ -92,7 +92,7 @@ partial class MainForm
         // 
         // ViewDataButton
         // 
-        ViewDataButton.Location = new Point(12, 131);
+        ViewDataButton.Location = new Point(12, 132);
         ViewDataButton.Name = "ViewDataButton";
         ViewDataButton.Size = new Size(317, 34);
         ViewDataButton.TabIndex = 5;
@@ -126,7 +126,7 @@ partial class MainForm
         // comboBoxRecordings
         // 
         comboBoxRecordings.FormattingEnabled = true;
-        comboBoxRecordings.Location = new Point(12, 171);
+        comboBoxRecordings.Location = new Point(12, 172);
         comboBoxRecordings.Name = "comboBoxRecordings";
         comboBoxRecordings.Size = new Size(313, 33);
         comboBoxRecordings.TabIndex = 6;
@@ -137,7 +137,7 @@ partial class MainForm
         // label1
         // 
         label1.AutoSize = true;
-        label1.Location = new Point(12, 207);
+        label1.Location = new Point(12, 208);
         label1.Name = "label1";
         label1.Size = new Size(148, 25);
         label1.TabIndex = 7;
@@ -146,7 +146,7 @@ partial class MainForm
         // labelPacketsReceived
         // 
         labelPacketsReceived.AutoSize = true;
-        labelPacketsReceived.Location = new Point(166, 207);
+        labelPacketsReceived.Location = new Point(166, 208);
         labelPacketsReceived.Name = "labelPacketsReceived";
         labelPacketsReceived.Size = new Size(22, 25);
         labelPacketsReceived.TabIndex = 8;
@@ -156,7 +156,7 @@ partial class MainForm
         // 
         AutoScaleDimensions = new SizeF(10F, 25F);
         AutoScaleMode = AutoScaleMode.Font;
-        ClientSize = new Size(337, 245);
+        ClientSize = new Size(337, 243);
         Controls.Add(labelPacketsReceived);
         Controls.Add(label1);
         Controls.Add(comboBoxRecordings);

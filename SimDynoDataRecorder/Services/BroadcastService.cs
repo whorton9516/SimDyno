@@ -1,21 +1,22 @@
-﻿using SimDynoDataRecorder.Views;
+﻿using SimDynoDevSuite.Views;
 using SimDynoServer.Models;
 using SimDynoServer.Utils;
 using System.Net;
 using System.Net.Sockets;
 
-namespace SimDynoDataRecorder.Services;
+namespace SimDynoDevSuite.Services;
 public class BroadcastService
 {
     private UdpClient? _udpClient;
     private IPEndPoint? _endPoint;
     private string _ipAddress;
     private string _port;
-    private List<byte[]>? _packets;
-    private int _packetIndex;
-    private System.Timers.Timer? _timer;
     private byte[]? _latestPacket;
     private CancellationTokenSource? _cts;
+    private bool _gameConnected = false;
+
+    // Event to notify when broadcasting stops
+    public event Action? BroadcastStopped;
 
     public BroadcastService(string ipAddress, string port)
     {
@@ -23,11 +24,18 @@ public class BroadcastService
         _port = port;
     }
 
-    public async Task StartBroadcasting(List<byte[]> packets, TelemetryDataView? telemetryDataView)
+    public bool GameConnected
+    {
+        get => _gameConnected;
+        set => _gameConnected = value;
+    }
+
+    public async Task StartBroadcasting(List<byte[]> packets)
     {
         _endPoint = new IPEndPoint(IPAddress.Parse(_ipAddress), int.Parse(_port));
         _udpClient = new UdpClient();
         _cts = new CancellationTokenSource();
+        _gameConnected = true;
 
         try
         {
@@ -78,6 +86,8 @@ public class BroadcastService
             _udpClient = null;
             _cts?.Dispose();
             _cts = null;
+            _gameConnected = false;
+            BroadcastStopped?.Invoke();
         }
     }
 
@@ -86,6 +96,8 @@ public class BroadcastService
         _cts?.Cancel();
         _udpClient?.Dispose();
         _udpClient = null;
+        _gameConnected = false;
+        BroadcastStopped?.Invoke();
     }
 
     public ForzaData ParseForza(byte[] packet)
